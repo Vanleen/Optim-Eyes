@@ -1,10 +1,17 @@
 import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
+import Header from "./components/Header";
 
 function App() {
   return (
-    <div className="bg-blue-500 text-white text-3xl p-4">
-      🎉 Optim’eyes fonctionne avec Tailwind CSS !
-    </div>
+    <Router>
+      <>
+        <Header />
+        <main className="p-6">
+          {/* Contenu principal de l'application */}
+        </main>
+      </>
+    </Router>
   );
 }
 
