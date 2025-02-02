@@ -28,7 +28,7 @@ const HeroCarousel = () => {
   }, []);
 
   return (
-    <div className="relative w-full h-[500px] overflow-hidden">
+    <div className="relative w-full h-[565px] overflow-hidden">
       <AnimatePresence>
         <motion.img
           key={index}
