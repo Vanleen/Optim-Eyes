@@ -95,7 +95,7 @@ const Header = () => {
                 {/* Menu déroulant (visible au survol) */}
                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-1000">
                   <Link
-                    to="/mon-compte"
+                    to="/login"
                     className="flex items-center gap-2 px-4 py-2 text-gray-800 hover:bg-gray-200"
                   >
                     <FiUser className="p-1 border border-black rounded-full" />
