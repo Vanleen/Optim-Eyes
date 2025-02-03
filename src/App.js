@@ -1,17 +1,21 @@
-import React from "react";
-import { BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
-import Footer from "./components/Footer"; // <-- Import du Footer
+import HeroSection from "./components/HeroSection";
+import Footer from "./components/Footer";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 function App() {
   return (
     <Router>
       <>
         <Header />
-        <main className="p-6">
-          {/* Contenu principal de l'application */}
-        </main>
-        <Footer /> {/* <-- Ajout du Footer ici */}
+        <Routes>
+          <Route path="/" element={<HeroSection />} />
+          <Route path="/login" element={<Login />} /> {/* <-- Ajout de la page Connexion */}
+          <Route path="/signup" element={<Signup />} /> {/* <-- Ajout de la page Inscription */}
+        </Routes>
+        <Footer />
       </>
     </Router>
   );
