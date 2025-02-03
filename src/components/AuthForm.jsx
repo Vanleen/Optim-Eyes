@@ -13,19 +13,38 @@ const AuthForm = ({ type }) => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-white">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-semibold text-center mb-4">
+    <div className="flex items-center justify-center min-h-screen bg-white">
+      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-semibold text-center mb-6">
           {type === "login" ? "Connexion" : "Inscription"}
         </h2>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          {/* Champ Nom (uniquement pour l'inscription) */}
+          {type === "signup" && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Nom complet</label>
+              <input
+                type="text"
+                {...register("name", { required: "Le nom est requis" })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              />
+              {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
+            </div>
+          )}
+
           {/* Champ Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Email</label>
             <input
               type="email"
-              {...register("email", { required: "L'email est requis" })}
+              {...register("email", {
+                required: "L'email est requis",
+                pattern: {
+                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                  message: "Format d'email invalide"
+                }
+              })}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             />
             {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
@@ -36,7 +55,14 @@ const AuthForm = ({ type }) => {
             <label className="block text-sm font-medium text-gray-700">Mot de passe</label>
             <input
               type="password"
-              {...register("password", { required: "Mot de passe requis", minLength: 6 })}
+              {...register("password", {
+                required: "Mot de passe requis",
+                minLength: { value: 6, message: "Au moins 6 caractères" },
+                pattern: {
+                  value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/,
+                  message: "Doit contenir au moins une lettre et un chiffre"
+                }
+              })}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             />
             {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
@@ -45,7 +71,7 @@ const AuthForm = ({ type }) => {
           {/* Bouton Submit */}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            className="w-full bg-[#C7C0AE] text-white py-2 rounded-md hover:bg-opacity-90 transition"
           >
             {type === "login" ? "Se connecter" : "S'inscrire"}
           </button>
