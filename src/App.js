@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
-import HeroSection from "./components/HeroSection";
 import Footer from "./components/Footer";
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 
@@ -11,9 +11,9 @@ function App() {
       <>
         <Header />
         <Routes>
-          <Route path="/" element={<HeroSection />} />
-          <Route path="/login" element={<Login />} /> {/* <-- Ajout de la page Connexion */}
-          <Route path="/signup" element={<Signup />} /> {/* <-- Ajout de la page Inscription */}
+          <Route path="/" element={<Home />} /> {/* ✅ Home est la page principale */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
         </Routes>
         <Footer />
       </>
