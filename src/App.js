@@ -4,6 +4,7 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Catalogue from "./pages/Catalogue";
 
 function App() {
   return (
@@ -11,9 +12,11 @@ function App() {
       <>
         <Header />
         <Routes>
-          <Route path="/" element={<Home />} /> {/* ✅ Home est la page principale */}
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/catalogue" element={<Catalogue />} />
+          <Route path="/catalogue/:category" element={<Catalogue />} /> {/* ✅ Vérifier cette ligne */}
         </Routes>
         <Footer />
       </>
