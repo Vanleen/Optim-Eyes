@@ -8,6 +8,8 @@ import Catalogue from "./pages/Catalogue";
 import Favoris from "./pages/Favoris";
 import ProductPage from "./components/ProductPage";
 import CartPage from "./components/CartPage";
+import CheckoutPage from "./pages/CheckoutPage"; // ✅ Import de la page
+
 
 
 
@@ -25,6 +27,7 @@ function App() {
           <Route path="/favoris" element={<Favoris />} />
           <Route path="/produit/:id" element={<ProductPage />} />
           <Route path="/panier" element={<CartPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
         </Routes>
         <Footer />
       </>
