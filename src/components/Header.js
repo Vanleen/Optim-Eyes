@@ -13,11 +13,13 @@ import {
 import { FaInstagram, FaTwitter, FaPinterest, FaTiktok } from "react-icons/fa";
 import logo from "../assets/images/logo.svg";
 
-const Header = () => {
+const Header = () => {  
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [cartCount, setCartCount] = useState(0);  // ✅ Déplacement ici
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
   const [isScrolled, setIsScrolled] = useState(false);
   const [lastScrollTop, setLastScrollTop] = useState(0);
   const [showBanner, setShowBanner] = useState(true);
@@ -27,15 +29,26 @@ const Header = () => {
     () => JSON.parse(localStorage.getItem("favorites")) || []
   );
 
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      setCartCount(cart.length);
+    };
+
+    updateCartCount();
+    window.addEventListener("storage", updateCartCount);
+    return () => window.removeEventListener("storage", updateCartCount);
+  }, []);
+  
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollButton(window.scrollY > 300); // ✅ Bouton visible après 300px de scroll
     };
-  
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  
 
   useEffect(() => {
     const updateFavorites = () => {
@@ -158,7 +171,14 @@ const Header = () => {
                 />
               </Link>
 
-              <FiShoppingCart className="cursor-pointer hover:text-blue-600" />
+              <Link to="/panier" className="relative">
+      <FiShoppingCart className="cursor-pointer hover:text-blue-600 text-2xl" />
+      {cartCount > 0 && (
+        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+          {cartCount}
+        </span>
+      )}
+    </Link>
             </div>
 
             {/* Icône Calendrier (Mobile) */}
@@ -272,12 +292,11 @@ const Header = () => {
       {/* ✅ Bouton de remontée en haut - Maintenant en dehors de la condition showBanner */}
       {showScrollButton && (
         <button
-        onClick={scrollToTop}
-        className="fixed bottom-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-white border-2 border-[#ffaf50] text-[#ffaf50] shadow-md hover:bg-[#ffaf50] hover:text-white transition-all z-50"
-      >
-        ↑
-      </button>
-      
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-white border-2 border-[#ffaf50] text-[#ffaf50] shadow-md hover:bg-[#ffaf50] hover:text-white transition-all z-50"
+        >
+          ↑
+        </button>
       )}
     </>
   );

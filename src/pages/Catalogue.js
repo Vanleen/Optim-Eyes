@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { fetchProducts } from "../api/mockApi";
 import catalogueImage from "../assets/images/catalogue.jpg";
 import { FiHeart } from "react-icons/fi";
@@ -152,11 +153,13 @@ const Catalogue = () => {
                 key={product.id}
                 className="bg-white rounded-lg shadow-md overflow-hidden relative"
               >
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-48 object-cover"
-                />
+                <Link to={`/produit/${product.id}`} className="block">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-48 object-cover"
+                  />
+                </Link>
 
                 <button
                   className={`absolute bottom-3 right-3 text-xl ${

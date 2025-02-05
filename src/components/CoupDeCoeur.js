@@ -113,11 +113,13 @@ const CoupDeCoeur = () => {
               to={`/produit/${product.id}`}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300 relative"
             >
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-48 object-cover"
-              />
+              <Link to={`/produit/${product.id}`} className="block">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-48 object-cover"
+                />
+              </Link>
 
               <div className="absolute top-2 left-2 flex items-center group">
                 <FiCamera className="text-gray-700 text-xl group-hover:text-gray-900" />

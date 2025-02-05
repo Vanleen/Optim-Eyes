@@ -6,6 +6,9 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Catalogue from "./pages/Catalogue";
 import Favoris from "./pages/Favoris";
+import ProductPage from "./components/ProductPage";
+import CartPage from "./components/CartPage";
+
 
 
 function App() {
@@ -20,6 +23,8 @@ function App() {
           <Route path="/catalogue" element={<Catalogue />} />
           <Route path="/catalogue/:category" element={<Catalogue />} /> {/* ✅ Vérifier cette ligne */}
           <Route path="/favoris" element={<Favoris />} />
+          <Route path="/produit/:id" element={<ProductPage />} />
+          <Route path="/panier" element={<CartPage />} />
         </Routes>
         <Footer />
       </>
