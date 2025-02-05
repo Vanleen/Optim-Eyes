@@ -66,7 +66,7 @@ const ProductPage = () => {
         </div>
 
         {/* 📄 Détails du produit */}
-        <div className="space-y-6 mt-0 lg:mt-[140px]">
+        <div className="space-y-6 md:mt-20 lg:mt-[140px]">
           {" "}
           {/* ✅ Aucun changement sur mobile et tablette, ajuste uniquement desktop */}
           <h1 className="text-3xl sm:text-4xl font-semibold text-gray-800">

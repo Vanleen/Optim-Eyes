@@ -33,11 +33,14 @@ const Favoris = () => {
                 key={product.id}
                 className="bg-white rounded-lg shadow-md overflow-hidden relative"
               >
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-48 object-cover"
-                />
+                <Link to={`/produit/${product.id}`} className="block">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-48 object-cover"
+                  />
+                </Link>
+
                 <button
                   className="absolute bottom-3 right-3 text-xl text-red-500"
                   onClick={() => removeFavorite(product.id)}
@@ -51,7 +54,9 @@ const Favoris = () => {
               </div>
             ))
           ) : (
-            <p className="text-center text-gray-500">Aucun favori pour le moment.</p>
+            <p className="text-center text-gray-500">
+              Aucun favori pour le moment.
+            </p>
           )}
         </div>
 
