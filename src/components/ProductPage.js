@@ -38,14 +38,26 @@ const ProductPage = () => {
     setLiked(!liked);
   };
 
+  const addToCart = () => {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    cart.push({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+    });
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert("Produit ajouté au panier !");
+  };
+
   if (!product)
     return <p className="text-center text-gray-500">Produit introuvable.</p>;
 
   return (
-    <div className="container mx-auto px-6 mt-[70px]"> {/* ✅ Ajout de `py-32` pour descendre le contenu */}
+    <div className="container mx-auto px-6 mt-[70px]">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
         {/* 🖼️ Image du produit */}
-        <div className="bg-gray-100 rounded-lg overflow-hidden">
+        <div className="bg-gray-100 rounded-lg overflow-hidden mt-20 lg:mt-[80px]">
           <img
             src={product.image}
             alt={product.name}
@@ -54,38 +66,52 @@ const ProductPage = () => {
         </div>
 
         {/* 📄 Détails du produit */}
-        <div className="space-y-6 mt-[120px]"> {/* ✅ Ajout d'un `space-y-6` pour plus d'espacement */}
-          <h1 className="text-4xl font-semibold text-gray-800">
+        <div className="space-y-6 mt-0 lg:mt-[140px]">
+          {" "}
+          {/* ✅ Aucun changement sur mobile et tablette, ajuste uniquement desktop */}
+          <h1 className="text-3xl sm:text-4xl font-semibold text-gray-800">
             {product.name}
           </h1>
-          <p className="text-3xl text-[#ffaf50] font-semibold">
+          <p className="text-2xl sm:text-3xl text-[#ffaf50] font-semibold">
             {product.price} €
           </p>
-
           {/* ✅ Forme, Matériaux, Teinte, Référence */}
           <div className="space-y-2 text-gray-700">
-            <p><strong>Forme :</strong> {product.forme || "Carrée"}</p>
-            <p><strong>Matériaux :</strong> {product.materiaux || "Acétate"}</p>
-            <p><strong>Référence :</strong> {product.reference || `OPT-${product.id}`}</p>
+            <p>
+              <strong>Forme :</strong> {product.forme || "Carrée"}
+            </p>
+            <p>
+              <strong>Matériaux :</strong> {product.materiaux || "Acétate"}
+            </p>
+            <p>
+              <strong>Référence :</strong>{" "}
+              {product.reference || `OPT-${product.id}`}
+            </p>
           </div>
-
-          {/* ✅ Description courte */}
+          {/* ✅ Description courte (remise en place) */}
           <p className="text-gray-600 leading-relaxed">
-            Ces lunettes offrent un design moderne avec un excellent confort. Idéales pour un usage quotidien,
-            elles sont fabriquées avec des matériaux de haute qualité assurant durabilité et élégance.
+            Ces lunettes offrent un design moderne avec un excellent confort.
+            Idéales pour un usage quotidien, elles sont fabriquées avec des
+            matériaux de haute qualité assurant durabilité et élégance.
           </p>
-
           {/* ❤️ Icône Ajouter aux favoris */}
           <button
             onClick={toggleLike}
-            className="flex items-center gap-2 text-[#ffaf50] text-xl transition"
+            className="flex items-center gap-2 text-[#ffaf50] text-xl transition mx-auto sm:mx-0"
           >
-            <FiHeart className={`${liked ? "fill-current text-red-500" : "text-gray-400"}`} />
+            <FiHeart
+              className={`${
+                liked ? "fill-current text-red-500" : "text-gray-400"
+              }`}
+            />
           </button>
-
           {/* 🛒 Ajouter au panier */}
-          <button className="w-full md:w-auto px-6 py-3 bg-[#ffaf50] text-white font-semibold rounded-md hover:bg-[#e69940] transition">
-            <FiShoppingCart className="text-xl inline-block mr-2" /> Ajouter au panier
+          <button
+            onClick={addToCart}
+            className="w-full sm:w-auto px-6 py-3 bg-[#ffaf50] text-white font-semibold rounded-md hover:bg-[#e69940] transition"
+          >
+            <FiShoppingCart className="text-xl inline-block mr-2" /> Ajouter au
+            panier
           </button>
         </div>
       </div>
