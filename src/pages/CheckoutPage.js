@@ -57,7 +57,7 @@ const CheckoutPage = () => {
         </div>
 
         {/* 📌 Colonne droite : Formulaire de paiement */}
-        <div className="bg-white p-6 shadow-lg rounded-lg mt-4"> {/* ✅ Décalage du formulaire */}
+        <div className="bg-white p-6 shadow-lg rounded-lg"> {/* ✅ Décalage du formulaire */}
           <h2 className="text-2xl font-semibold mb-4">Informations de Paiement</h2>
           <CheckoutForm />
         </div>

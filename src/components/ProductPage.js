@@ -67,7 +67,7 @@ const ProductPage = () => {
   };
 
   return (
-    <div className="container mx-auto px-6 mt-[70px]">
+    <div className="container mx-auto px-6 mt-[160px]">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
         {/* 🖼️ Image du produit */}
         <div className="bg-gray-100 rounded-lg overflow-hidden">
@@ -75,7 +75,7 @@ const ProductPage = () => {
         </div>
 
         {/* 📄 Détails du produit */}
-        <div className="space-y-6 mt-[120px]">
+        <div className="space-y-6 mt-[80px]">
           <h1 className="text-4xl font-semibold text-gray-800">{product.name}</h1>
           <p className="text-3xl text-[#ffaf50] font-semibold">{product.price} €</p>
 

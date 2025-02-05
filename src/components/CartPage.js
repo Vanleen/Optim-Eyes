@@ -75,9 +75,9 @@ const CartPage = () => {
               </p>
               <Link
                 to="/checkout"
-                className="w-full bg-[#ffaf50] text-white font-semibold py-3 rounded-lg hover:bg-[#e69940] block text-center"
+                className="px-6 py-3 bg-[#ffaf50] text-white font-semibold rounded-md hover:bg-[#e69940] transition w-auto md:ml-auto"
               >
-                Passer Commande
+                Passer commande
               </Link>
             </div>
           </div>

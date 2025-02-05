@@ -19,6 +19,29 @@ const CheckoutForm = ({ cart, totalPrice }) => {
     alert("Paiement en cours...");
   };
 
+  const handleOrderSubmit = () => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    if (cart.length === 0) {
+      alert("Votre panier est vide !");
+      return;
+    }
+
+    const newOrder = {
+      id: Date.now(),
+      products: cart,
+      total: cart
+        .reduce((total, product) => total + product.price, 0)
+        .toFixed(2),
+      date: new Date().toLocaleDateString(),
+    };
+
+    localStorage.setItem("order", JSON.stringify(newOrder));
+    localStorage.removeItem("cart"); // On vide le panier après validation
+
+    window.location.href = "/confirmation"; // Redirection vers la page confirmation
+  };
+
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Informations de paiement</h2>
@@ -94,10 +117,11 @@ const CheckoutForm = ({ cart, totalPrice }) => {
 
       {/* 🔹 Bouton de paiement */}
       <button
-        type="submit"
-        className="w-full bg-[#ffaf50] text-white font-semibold py-3 rounded-lg hover:bg-[#e69940]"
+        type="button"
+        onClick={handleOrderSubmit}
+        className="w-full bg-[#ffaf50] text-white font-semibold py-3 rounded-md hover:bg-[#e69940] transition"
       >
-        Payer {totalPrice} €
+        Confirmer la commande
       </button>
     </form>
   );
