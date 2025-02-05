@@ -3,22 +3,39 @@ import { Link } from "react-router-dom";
 import { FiTrash } from "react-icons/fi";
 
 const CartPage = () => {
-  const [cart, setCart] = useState([]);
+    const [cart, setCart] = useState([]);
 
-  useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCart(storedCart);
-  }, []);
-
-  const removeFromCart = (id) => {
-    const updatedCart = cart.filter((product) => product.id !== id);
-    setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-  };
-
-  const getTotalPrice = () => {
-    return cart.reduce((total, product) => total + product.price, 0).toFixed(2);
-  };
+    useEffect(() => {
+        const handleCartUpdate = () => {
+          const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+          setCart(storedCart);
+        };
+      
+        window.addEventListener("storage", handleCartUpdate);
+        return () => window.removeEventListener("storage", handleCartUpdate);
+      }, []);
+      
+  
+    useEffect(() => {
+      const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+      setCart(storedCart);
+    }, []);
+  
+    const removeFromCart = (id) => {
+      const updatedCart = cart.filter((product) => product.id !== id);
+      setCart(updatedCart);
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+  
+      // 🔄 Met à jour le header en dispatchant un événement "storage"
+      setTimeout(() => {
+        window.dispatchEvent(new Event("storage"));
+      }, 200);
+          
+    };
+  
+    const getTotalPrice = () => {
+      return cart.reduce((total, product) => total + product.price, 0).toFixed(2);
+    };
 
   return (
     <section className="mt-[180px] pb-16 bg-gray-100 min-h-screen">

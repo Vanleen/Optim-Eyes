@@ -35,40 +35,44 @@ const Header = () => {
       setCartCount(cart.length);
     };
 
+    const updateFavorites = () => {
+      const storedFavorites =
+        JSON.parse(localStorage.getItem("favorites")) || [];
+      setFavorites(storedFavorites);
+    };
+
+    // Mettre à jour les favoris et le panier dès le chargement
     updateCartCount();
+    updateFavorites();
+
+    // Écoute les modifications du `localStorage` pour une mise à jour instantanée
     window.addEventListener("storage", updateCartCount);
-    return () => window.removeEventListener("storage", updateCartCount);
+    window.addEventListener("storage", updateFavorites);
+
+    return () => {
+      window.removeEventListener("storage", updateCartCount);
+      window.removeEventListener("storage", updateFavorites);
+    };
   }, []);
 
+  // ✅ Bouton de remontée après 300px de scroll
   useEffect(() => {
     const handleScroll = () => {
-      setShowScrollButton(window.scrollY > 300); // ✅ Bouton visible après 300px de scroll
+      setShowScrollButton(window.scrollY > 300);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    const updateFavorites = () => {
-      setFavorites(JSON.parse(localStorage.getItem("favorites")) || []);
-    };
-
-    window.addEventListener("storage", updateFavorites);
-    return () => window.removeEventListener("storage", updateFavorites);
-  }, []);
-
-  useEffect(() => {
-    const storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
-    setFavorites(storedFavorites);
-  }, []);
-
+  // ✅ Gestion du scroll pour afficher/masquer la barre de recherche
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
       setShowSearch(scrollTop <= lastScrollTop);
       setIsScrolled(scrollTop > 50);
       setLastScrollTop(scrollTop);
+
       if (isMenuOpen) {
         setIsMenuOpen(false);
       }
@@ -78,14 +82,28 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollTop, isMenuOpen]);
 
+  // ✅ Sauvegarde des favoris dans le localStorage dès qu'ils changent
   useEffect(() => {
     const storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
-    setFavorites(storedFavorites);
-  }, []);
+    if (JSON.stringify(storedFavorites) !== JSON.stringify(favorites)) {
+      localStorage.setItem("favorites", JSON.stringify(favorites));
+      window.dispatchEvent(new Event("storage"));
+    }
+  }, [favorites]);
 
   useEffect(() => {
-    localStorage.setItem("favorites", JSON.stringify(favorites));
-  }, [favorites]);
+    const handleCartUpdate = () => {
+      console.log("📢 Panier mis à jour !");
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      setCartCount(cart.length);
+    };
+
+    window.addEventListener("storage", handleCartUpdate);
+
+    return () => {
+      window.removeEventListener("storage", handleCartUpdate);
+    };
+  }, []);
 
   return (
     <>
@@ -149,13 +167,6 @@ const Header = () => {
                   >
                     <FiUser className="p-1 border border-black rounded-full" />
                     Mon compte
-                  </Link>
-                  <Link
-                    to="/favoris"
-                    className="flex items-center gap-2 px-4 py-2 text-gray-800 hover:bg-gray-200"
-                  >
-                    <FiHeart className="p-1 border border-black rounded-full" />
-                    Mes favoris
                   </Link>
                 </div>
               </div>
