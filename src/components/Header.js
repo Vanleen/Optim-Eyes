@@ -13,9 +13,9 @@ import {
 import { FaInstagram, FaTwitter, FaPinterest, FaTiktok } from "react-icons/fa";
 import logo from "../assets/images/logo.svg";
 
-const Header = () => {  
+const Header = () => {
   const [showScrollButton, setShowScrollButton] = useState(false);
-  const [cartCount, setCartCount] = useState(0);  // ✅ Déplacement ici
+  const [cartCount, setCartCount] = useState(0); // ✅ Déplacement ici
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -29,7 +29,6 @@ const Header = () => {
     () => JSON.parse(localStorage.getItem("favorites")) || []
   );
 
-
   useEffect(() => {
     const updateCartCount = () => {
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -40,7 +39,7 @@ const Header = () => {
     window.addEventListener("storage", updateCartCount);
     return () => window.removeEventListener("storage", updateCartCount);
   }, []);
-  
+
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollButton(window.scrollY > 300); // ✅ Bouton visible après 300px de scroll
@@ -172,13 +171,13 @@ const Header = () => {
               </Link>
 
               <Link to="/panier" className="relative">
-      <FiShoppingCart className="cursor-pointer hover:text-blue-600 text-2xl" />
-      {cartCount > 0 && (
-        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-          {cartCount}
-        </span>
-      )}
-    </Link>
+                <FiShoppingCart className="cursor-pointer hover:text-blue-600 text-2xl" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
             </div>
 
             {/* Icône Calendrier (Mobile) */}
@@ -190,50 +189,82 @@ const Header = () => {
       </header>
 
       {/* Menu Burger */}
-<motion.div
-  className={`fixed top-[90px] left-0 w-full h-[calc(100vh-90px)] bg-white z-50 transform ${
-    isMenuOpen ? "translate-x-0" : "-translate-x-full"
-  } transition-transform duration-300 ease-in-out shadow-lg`}
->
-  <nav className="flex flex-col space-y-4 pl-6 pt-16 text-left">
-    {/* ✅ Liens du menu principal */}
-    <Link to="/catalogue/optique" className="text-black text-lg hover:text-[#ffaf50]">
-      Optique
-    </Link>
-    <Link to="/catalogue/solaire" className="text-black text-lg hover:text-[#ffaf50]">
-      Solaire
-    </Link>
-    <Link to="/catalogue/enfant" className="text-black text-lg hover:text-[#ffaf50]">
-      Enfant
-    </Link>
-    <Link to="/contact" className="text-black text-lg hover:text-[#ffaf50]">
-      Examen à domicile
-    </Link>
+      <motion.div
+        className={`fixed top-[90px] left-0 w-full h-[calc(100vh-90px)] bg-white z-50 transform ${
+          isMenuOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-300 ease-in-out shadow-lg`}
+      >
+        <nav className="flex flex-col space-y-4 pl-6 pt-16 text-left">
+          {/* ✅ Liens du menu principal */}
+          <Link
+            to="/catalogue/optique"
+            className="text-black text-lg hover:text-blue-600"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Optique
+          </Link>
 
-    {/* ✅ Ligne de séparation */}
-    <hr className="border-t-2 border-[#ffaf50] w-4/5 my-4 mx-auto" />
+          <Link
+            to="/catalogue/solaire"
+            className="text-black text-lg hover:text-blue-600"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Solaire
+          </Link>
 
-    {/* ✅ Nouveaux liens sous la séparation */}
-    <Link to="/login" className="flex items-center gap-2 text-black text-lg hover:text-[#ffaf50]">
-      <FiUser className="text-xl" /> Mon Compte
-    </Link>
-    <Link to="/panier" className="flex items-center gap-2 text-black text-lg hover:text-[#ffaf50]">
-      <FiShoppingCart className="text-xl" /> Mon Panier
-    </Link>
-    <Link to="/favoris" className="flex items-center gap-2 text-black text-lg hover:text-[#ffaf50]">
-      <FiHeart className="text-xl" /> Mes Favoris
-    </Link>
-  </nav>
+          <Link
+            to="/catalogue/enfant"
+            className="text-black text-lg hover:text-blue-600"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Enfant
+          </Link>
 
-  {/* Icônes réseaux sociaux */}
-  <div className="absolute bottom-0 w-full bg-[#0077B6] py-4 flex justify-center space-x-6">
-    <FaInstagram className="text-white text-2xl cursor-pointer" />
-    <FaTwitter className="text-white text-2xl cursor-pointer" />
-    <FaPinterest className="text-white text-2xl cursor-pointer" />
-    <FaTiktok className="text-white text-2xl cursor-pointer" />
-  </div>
-</motion.div>
+          <Link
+            to="/contact"
+            className="text-black text-lg hover:text-blue-600"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Examen à domicile
+          </Link>
 
+          {/* ✅ Ligne de séparation */}
+          <hr className="border-t-2 border-[#ffaf50] w-4/5 my-4 mx-auto" />
+
+          {/* ✅ Nouveaux liens sous la séparation */}
+          <Link
+            to="/login"
+            className="flex items-center gap-2 text-black text-lg hover:text-[#ffaf50]"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <FiUser className="text-xl" /> Mon Compte
+          </Link>
+
+          <Link
+            to="/panier"
+            className="flex items-center gap-2 text-black text-lg hover:text-[#ffaf50]"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <FiShoppingCart className="text-xl" /> Mon Panier
+          </Link>
+
+          <Link
+            to="/favoris"
+            className="flex items-center gap-2 text-black text-lg hover:text-[#ffaf50]"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <FiHeart className="text-xl" /> Mes Favoris
+          </Link>
+        </nav>
+
+        {/* Icônes réseaux sociaux */}
+        <div className="absolute bottom-0 w-full bg-[#0077B6] py-4 flex justify-center space-x-6">
+          <FaInstagram className="text-white text-2xl cursor-pointer" />
+          <FaTwitter className="text-white text-2xl cursor-pointer" />
+          <FaPinterest className="text-white text-2xl cursor-pointer" />
+          <FaTiktok className="text-white text-2xl cursor-pointer" />
+        </div>
+      </motion.div>
 
       {/* Bouton Prendre RDV */}
       <div
