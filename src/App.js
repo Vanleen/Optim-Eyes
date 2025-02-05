@@ -11,6 +11,7 @@ import ProductPage from "./components/ProductPage";
 import CartPage from "./components/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderConfirmation from "./pages/OrderConfirmation";
+import ChatbotButton from "./components/ChatbotButton";
 
 function ScrollToTop() {
   const location = useLocation(); // ✅ Récupération de l'URL
@@ -40,6 +41,7 @@ function App() {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/confirmation" element={<OrderConfirmation />} />
         </Routes>
+        <ChatbotButton /> {/* 🔥 Ajout du bouton chatbot */}
         <Footer />
       </>
     </Router>
