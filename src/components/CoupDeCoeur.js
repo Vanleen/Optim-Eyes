@@ -1,68 +1,97 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { fetchProducts } from "../api/mockApi";
-import { FiCamera } from "react-icons/fi"; // 📷 Icône caméra
+import { FiCamera, FiHeart } from "react-icons/fi";
 
 const categories = [
   { name: "Optique", filter: ["Homme", "Femme"] },
-  { name: "Solaire", filter: ["Solaire"] },
-  { name: "Enfant", filter: ["Enfant"] },
-  { name: "Écolo", filter: ["Ecolo"] }
+  { name: "Solaire", filter: ["Femme", "Homme", "Enfant"] },
+  { name: "Enfant", filter: ["Optique", "Solaire"] },
+  { name: "Écolo", filter: ["Ecolo"] },
 ];
 
 const CoupDeCoeur = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [displayedProducts, setDisplayedProducts] = useState([]);
+  const [likedProducts, setLikedProducts] = useState([]);
 
   useEffect(() => {
     fetchProducts().then((data) => {
+      console.log("📢 Produits récupérés :", data); // 🔍 Vérifier tous les produits
+      console.log("📢 Catégorie sélectionnée :", selectedCategory); // 🔍 Vérifier la catégorie sélectionnée
+
       if (!selectedCategory) {
-        // 🟢 Par défaut : 1 produit par catégorie
         const defaultProducts = [
-          data.find((p) => p.category === "Femme"),
+          data.find((p) => p.subcategory === "Femme"),
           data.find((p) => p.category === "Solaire"),
-          data.find((p) => p.category === "Enfant"),
-          data.find((p) => p.category === "Ecolo")
+          data.find((p) => p.subcategory === "Enfant"),
+          data.find((p) => p.category === "Ecolo"),
         ].filter(Boolean);
+
+        console.log("📢 Produits par défaut affichés :", defaultProducts); // 🔍 Vérifier les produits affichés
         setDisplayedProducts(defaultProducts);
       } else {
-        // 🔹 Sélectionner 2 modèles Femme + 2 modèles Homme pour Optique
-        if (selectedCategory === "Optique") {
-          const hommes = data.filter((p) => p.category === "Homme").slice(0, 2);
-          const femmes = data.filter((p) => p.category === "Femme").slice(0, 2);
-          setDisplayedProducts([...hommes, ...femmes]);
-        } else {
-          // 🔹 Sinon, prendre 4 produits de la catégorie sélectionnée
-          const filteredProducts = data
-            .filter((p) => categories.find((c) => c.name === selectedCategory)?.filter.includes(p.category))
-            .slice(0, 4);
-          setDisplayedProducts(filteredProducts);
-        }
+        const normalizeText = (text) =>
+          text
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .trim();
+
+        const filteredProducts = data
+          .filter((p) => {
+            console.log(
+              `🔍 Vérification : p.category = "${p.category}", selectedCategory = "${selectedCategory}"`
+            );
+            return (
+              normalizeText(p.category) === normalizeText(selectedCategory) ||
+              (p.subcategory &&
+                normalizeText(p.subcategory) ===
+                  normalizeText(selectedCategory))
+            );
+          })
+          .slice(0, 4);
+
+        console.log(
+          "📢 Produits filtrés pour",
+          selectedCategory,
+          ":",
+          filteredProducts
+        ); // 🔍 Vérifier les produits filtrés
+        setDisplayedProducts(filteredProducts);
       }
     });
   }, [selectedCategory]);
+
+  const toggleLike = (id) => {
+    setLikedProducts((prev) =>
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
+    );
+  };
 
   return (
     <section className="py-16 bg-gray-100">
       <div className="container mx-auto text-center">
         <h2 className="text-3xl font-semibold mb-6">Nos Coups de Cœur ❤️</h2>
 
-        {/* 🟡 Menu des catégories */}
         <div className="flex justify-center space-x-6 mb-8">
           {categories.map(({ name }) => (
             <button
               key={name}
               className={`text-lg font-medium ${
-                selectedCategory === name ? "underline text-[#ffaf50]" : "text-black hover:text-[#ffaf50]"
+                selectedCategory === name
+                  ? "underline text-[#ffaf50]"
+                  : "text-black hover:text-[#ffaf50]"
               }`}
-              onClick={() => setSelectedCategory(name === selectedCategory ? null : name)}
+              onClick={() =>
+                setSelectedCategory(name === selectedCategory ? null : name)
+              }
             >
               {name}
             </button>
           ))}
         </div>
 
-        {/* 🟢 Affichage des produits */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 px-6">
           {displayedProducts.map((product) => (
             <Link
@@ -70,15 +99,38 @@ const CoupDeCoeur = () => {
               to={`/produit/${product.id}`}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300 relative"
             >
-              <img src={product.image} alt={product.name} className="w-full h-48 object-cover" />
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-48 object-cover"
+              />
 
-              {/* 🔹 Icône Caméra + Texte ESSAYER au survol */}
               <div className="absolute top-2 left-2 flex items-center group">
                 <FiCamera className="text-gray-700 text-xl group-hover:text-gray-900" />
                 <span className="ml-2 text-sm text-gray-700 font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   ESSAYER
                 </span>
               </div>
+
+              <button
+                className={`absolute bottom-3 right-3 text-xl transition-colors ${
+                  likedProducts.includes(product.id)
+                    ? "text-red-500"
+                    : "text-gray-400"
+                }`}
+                onClick={(e) => {
+                  e.preventDefault(); // 🔹 Empêche la redirection sur une autre page
+                  toggleLike(product.id);
+                }}
+              >
+                <FiHeart
+                  className={`${
+                    likedProducts.includes(product.id)
+                      ? "fill-current text-red-500"
+                      : ""
+                  }`}
+                />
+              </button>
 
               <div className="p-4">
                 <h3 className="text-lg font-semibold">{product.name}</h3>
@@ -88,10 +140,9 @@ const CoupDeCoeur = () => {
           ))}
         </div>
 
-        {/* 🔹 Bouton Voir toutes les montures */}
         <Link
-          to="/catalogue"
-          className="mt-10 inline-block px-6 py-3 bg-[#ffaf50] text-white font-semibold rounded-md hover:bg-[#b3a693] transition"
+          to={`/catalogue/${selectedCategory?.toLowerCase() || "optique"}`}
+          className="mt-8 inline-block px-6 py-3 bg-[#ffaf50] text-white font-semibold rounded-md hover:bg-[#e69940] transition"
         >
           Découvrir toutes nos montures
         </Link>
