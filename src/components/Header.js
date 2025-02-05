@@ -14,11 +14,42 @@ import { FaInstagram, FaTwitter, FaPinterest, FaTiktok } from "react-icons/fa";
 import logo from "../assets/images/logo.svg";
 
 const Header = () => {
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
   const [isScrolled, setIsScrolled] = useState(false);
   const [lastScrollTop, setLastScrollTop] = useState(0);
   const [showBanner, setShowBanner] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(true);
+  const [favorites, setFavorites] = useState(
+    () => JSON.parse(localStorage.getItem("favorites")) || []
+  );
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollButton(window.scrollY > 300); // ✅ Bouton visible après 300px de scroll
+    };
+  
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+  
+
+  useEffect(() => {
+    const updateFavorites = () => {
+      setFavorites(JSON.parse(localStorage.getItem("favorites")) || []);
+    };
+
+    window.addEventListener("storage", updateFavorites);
+    return () => window.removeEventListener("storage", updateFavorites);
+  }, []);
+
+  useEffect(() => {
+    const storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
+    setFavorites(storedFavorites);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,7 +57,6 @@ const Header = () => {
       setShowSearch(scrollTop <= lastScrollTop);
       setIsScrolled(scrollTop > 50);
       setLastScrollTop(scrollTop);
-
       if (isMenuOpen) {
         setIsMenuOpen(false);
       }
@@ -36,9 +66,17 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollTop, isMenuOpen]);
 
+  useEffect(() => {
+    const storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
+    setFavorites(storedFavorites);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+  }, [favorites]);
+
   return (
     <>
-      {/* Header Principal */}
       <header
         className={`fixed top-0 w-full z-50 transition-all duration-300 ${
           isScrolled ? "bg-white shadow-md h-[90px]" : "bg-white h-[90.14px]"
@@ -46,7 +84,6 @@ const Header = () => {
         style={{ padding: "10px 50px" }}
       >
         <div className="flex items-center justify-between">
-          {/* Menu Burger */}
           <button
             className="md:hidden ml-[-35px]"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -54,18 +91,23 @@ const Header = () => {
             {isMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
           </button>
 
-          {/* Logo et Slogan */}
           <div className="flex items-center space-x-3">
-            <img src={logo} alt="Logo" className="h-[55.8px]" />
-            <span
-              className="text-[0.8rem] font-bold md:text-base md:font-normal text-gray-600"
+            <Link to="/">
+              <img
+                src={logo}
+                alt="Logo"
+                className="h-[55.8px] cursor-pointer"
+              />
+            </Link>
+            <Link
+              to="/"
+              className="text-[0.8rem] font-bold md:text-base md:font-normal text-gray-600 hover:text-[#ffaf50]"
               style={{ fontFamily: "Telegraf" }}
             >
               TOUT DEVIENT PLUS CLAIR
-            </span>
+            </Link>
           </div>
 
-          {/* Barre de recherche Desktop */}
           <div className="flex-grow mx-6 hidden md:block">
             <input
               type="text"
@@ -74,7 +116,6 @@ const Header = () => {
             />
           </div>
 
-          {/* Barre de recherche Mobile */}
           {showSearch && (
             <div className="md:hidden fixed top-[89.14px] left-0 w-full px-4 py-2 bg-white shadow-md transition-all duration-300 z-40">
               <input
@@ -85,14 +126,10 @@ const Header = () => {
             </div>
           )}
 
-          {/* Icônes utilisateur + Menu déroulant */}
           <div className="flex items-center relative">
             <div className="hidden md:flex gap-4 text-xl text-black items-center">
-              {/* Icône utilisateur avec menu déroulant au survol */}
               <div className="relative group">
                 <FiUser className="cursor-pointer hover:text-blue-600" />
-
-                {/* Menu déroulant (visible au survol) */}
                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-1000">
                   <Link
                     to="/login"
@@ -111,7 +148,16 @@ const Header = () => {
                 </div>
               </div>
 
-              <FiHeart className="cursor-pointer hover:text-blue-600" />
+              <Link to="/favoris">
+                <FiHeart
+                  className={`cursor-pointer text-xl ${
+                    favorites.length > 0
+                      ? "fill-current text-red-500"
+                      : "text-black"
+                  }`}
+                />
+              </Link>
+
               <FiShoppingCart className="cursor-pointer hover:text-blue-600" />
             </div>
 
@@ -129,20 +175,30 @@ const Header = () => {
           isMenuOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out`}
       >
-        
-
         <nav className="flex flex-col space-y-4 pl-6 pt-16 text-left">
-          <Link to="/" className="text-black text-lg hover:text-blue-600">
+          <Link
+            to="/catalogue/optique"
+            className="text-black text-lg hover:text-blue-600"
+          >
             Optique
           </Link>
-          <Link to="/services" className="text-black text-lg hover:text-blue-600">
+          <Link
+            to="/catalogue/solaire"
+            className="text-black text-lg hover:text-blue-600"
+          >
             Solaire
           </Link>
-          <Link to="/contact" className="text-black text-lg hover:text-blue-600">
-            Nos verres
+          <Link
+            to="/catalogue/enfant"
+            className="text-black text-lg hover:text-blue-600"
+          >
+            Enfant
           </Link>
-          <Link to="/contact" className="text-black text-lg hover:text-blue-600">
-            Examen de vue gratuit
+          <Link
+            to="/contact"
+            className="text-black text-lg hover:text-blue-600"
+          >
+            Examen à domicile
           </Link>
         </nav>
 
@@ -176,17 +232,26 @@ const Header = () => {
           className="flex gap-8 text-[16px] font-normal"
           style={{ fontFamily: "Poppins", fontWeight: "400" }}
         >
-          <Link to="/" className="text-black hover:text-blue-600">
+          <Link
+            to="/catalogue/optique"
+            className="text-black hover:text-[#ffaf50]"
+          >
             Optique
           </Link>
-          <Link to="/services" className="text-black hover:text-blue-600">
+          <Link
+            to="/catalogue/solaire"
+            className="text-black hover:text-[#ffaf50]"
+          >
             Solaire
           </Link>
-          <Link to="/contact" className="text-black hover:text-blue-600">
-            Nos verres
+          <Link
+            to="/catalogue/enfant"
+            className="text-black hover:text-[#ffaf50]"
+          >
+            Enfant
           </Link>
-          <Link to="/contact" className="text-black hover:text-blue-600">
-            Examen de vue gratuit
+          <Link to="#" className="text-black hover:text-[#ffaf50]">
+            Examen à domicile
           </Link>
         </nav>
       </motion.div>
@@ -198,8 +263,21 @@ const Header = () => {
           animate={{ opacity: isScrolled ? 0 : 1, y: isScrolled ? -50 : 0 }}
         >
           <Link to="/offre">2 paires de lunettes pour 0 €</Link>
-          <FiX className="absolute right-4 cursor-pointer text-xl" onClick={() => setShowBanner(false)} />
+          <FiX
+            className="absolute right-4 cursor-pointer text-xl"
+            onClick={() => setShowBanner(false)}
+          />
         </motion.div>
+      )}
+      {/* ✅ Bouton de remontée en haut - Maintenant en dehors de la condition showBanner */}
+      {showScrollButton && (
+        <button
+        onClick={scrollToTop}
+        className="fixed bottom-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-white border-2 border-[#ffaf50] text-[#ffaf50] shadow-md hover:bg-[#ffaf50] hover:text-white transition-all z-50"
+      >
+        ↑
+      </button>
+      
       )}
     </>
   );

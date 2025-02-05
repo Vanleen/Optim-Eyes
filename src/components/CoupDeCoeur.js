@@ -63,10 +63,24 @@ const CoupDeCoeur = () => {
     });
   }, [selectedCategory]);
 
-  const toggleLike = (id) => {
-    setLikedProducts((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
-    );
+  const toggleLike = (product) => {
+    let storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
+
+    const exists = storedFavorites.some((fav) => fav.id === product.id);
+
+    if (exists) {
+      storedFavorites = storedFavorites.filter((fav) => fav.id !== product.id);
+    } else {
+      storedFavorites.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+      });
+    }
+
+    localStorage.setItem("favorites", JSON.stringify(storedFavorites));
+    setLikedProducts(storedFavorites.map((fav) => fav.id)); // ✅ Met à jour l'état des favoris
   };
 
   return (
@@ -113,18 +127,18 @@ const CoupDeCoeur = () => {
               </div>
 
               <button
-                className={`absolute bottom-3 right-3 text-xl transition-colors ${
+                className={`absolute bottom-3 right-3 text-xl ${
                   likedProducts.includes(product.id)
                     ? "text-red-500"
                     : "text-gray-400"
                 }`}
                 onClick={(e) => {
-                  e.preventDefault(); // 🔹 Empêche la redirection sur une autre page
-                  toggleLike(product.id);
+                  e.preventDefault(); // 🚀 Empêche la redirection !
+                  toggleLike(product);
                 }}
               >
                 <FiHeart
-                  className={`${
+                  className={`transition ${
                     likedProducts.includes(product.id)
                       ? "fill-current text-red-500"
                       : ""

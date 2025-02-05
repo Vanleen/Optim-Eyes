@@ -5,6 +5,8 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Catalogue from "./pages/Catalogue";
+import Favoris from "./pages/Favoris";
+
 
 function App() {
   return (
@@ -17,6 +19,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/catalogue" element={<Catalogue />} />
           <Route path="/catalogue/:category" element={<Catalogue />} /> {/* ✅ Vérifier cette ligne */}
+          <Route path="/favoris" element={<Favoris />} />
         </Routes>
         <Footer />
       </>
