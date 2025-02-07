@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -13,23 +13,28 @@ import CheckoutPage from "./pages/CheckoutPage";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import ChatbotButton from "./components/ChatbotButton";
 import Recommandations from "./pages/Recommandations";
+import { getCurrentUser, logoutUser } from "./api/authApi"; // ✅ Import des fonctions d'auth
+import AdminDashboard from "./pages/AdminDashboard";
 
 function ScrollToTop() {
-  const location = useLocation(); // ✅ Récupération de l'URL
-
+  const location = useLocation();
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" }); // ✅ Remonte en haut à chaque changement de page
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location.pathname]);
-
-  return null; // ✅ Ce composant ne rend rien, il gère juste l'effet
+  return null;
 }
 
 function App() {
+  const [user, setUser] = useState(getCurrentUser()); // ✅ Stocke l'utilisateur connecté
+
   return (
     <Router>
       <>
-        <ScrollToTop /> {/* ✅ Ajout du composant ici */}
-        <Header />
+        <ScrollToTop />
+        <Header user={user} onLogout={() => {
+          logoutUser();  // 🔴 Déconnexion et suppression du token
+          setUser(null); // 🔄 Met à jour l'état du user après déconnexion
+        }} />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -42,8 +47,11 @@ function App() {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/confirmation" element={<OrderConfirmation />} />
           <Route path="/recommandations" element={<Recommandations />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+
         </Routes>
-        <ChatbotButton /> {/* 🔥 Ajout du bouton chatbot */}
+        <ChatbotButton />
         <Footer />
       </>
     </Router>

@@ -21,7 +21,9 @@ const Signup = () => {
       return setError("Tous les champs sont requis.");
     }
     if (!validatePassword(password)) {
-      return setError("Le mot de passe doit contenir au moins 6 caractères, une lettre et un chiffre.");
+      return setError(
+        "Le mot de passe doit contenir au moins 6 caractères, une lettre et un chiffre."
+      );
     }
 
     try {
@@ -40,7 +42,9 @@ const Signup = () => {
 
         <form className="space-y-4" onSubmit={handleSignup}>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Nom complet</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Nom complet
+            </label>
             <input
               type="text"
               placeholder="Nom complet"
@@ -52,7 +56,9 @@ const Signup = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
             <input
               type="email"
               placeholder="Email"
@@ -64,7 +70,9 @@ const Signup = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Mot de passe</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Mot de passe
+            </label>
             <input
               type="password"
               placeholder="Mot de passe"
@@ -75,13 +83,21 @@ const Signup = () => {
             />
           </div>
 
-          <button type="submit" className="w-full bg-[#C7C0AE] text-white py-2 rounded-md hover:bg-opacity-90 transition">
+          <a
+            href="https://mellifluous-genie-0f7208.netlify.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full bg-[#C7C0AE] text-white text-center py-2 rounded-md hover:bg-opacity-90 transition block"
+          >
             S'inscrire
-          </button>
+          </a>
         </form>
 
         <p className="text-center text-sm mt-4">
-          Vous avez déjà un compte ? <Link to="/login" className="text-blue-600">Connectez-vous</Link>
+          Vous avez déjà un compte ?{" "}
+          <Link to="/login" className="text-blue-600">
+            Connectez-vous
+          </Link>
         </p>
       </div>
     </div>

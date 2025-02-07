@@ -17,9 +17,6 @@ const CoupDeCoeur = () => {
 
   useEffect(() => {
     fetchProducts().then((data) => {
-      console.log("📢 Produits récupérés :", data); // 🔍 Vérifier tous les produits
-      console.log("📢 Catégorie sélectionnée :", selectedCategory); // 🔍 Vérifier la catégorie sélectionnée
-
       if (!selectedCategory) {
         const defaultProducts = [
           data.find((p) => p.subcategory === "Femme"),
@@ -28,7 +25,6 @@ const CoupDeCoeur = () => {
           data.find((p) => p.category === "Ecolo"),
         ].filter(Boolean);
 
-        console.log("📢 Produits par défaut affichés :", defaultProducts); // 🔍 Vérifier les produits affichés
         setDisplayedProducts(defaultProducts);
       } else {
         const normalizeText = (text) =>
@@ -39,25 +35,13 @@ const CoupDeCoeur = () => {
             .trim();
 
         const filteredProducts = data
-          .filter((p) => {
-            console.log(
-              `🔍 Vérification : p.category = "${p.category}", selectedCategory = "${selectedCategory}"`
-            );
-            return (
-              normalizeText(p.category) === normalizeText(selectedCategory) ||
-              (p.subcategory &&
-                normalizeText(p.subcategory) ===
-                  normalizeText(selectedCategory))
-            );
-          })
+          .filter((p) =>
+            normalizeText(p.category) === normalizeText(selectedCategory) ||
+            (p.subcategory &&
+              normalizeText(p.subcategory) === normalizeText(selectedCategory))
+          )
           .slice(0, 4);
 
-        console.log(
-          "📢 Produits filtrés pour",
-          selectedCategory,
-          ":",
-          filteredProducts
-        ); // 🔍 Vérifier les produits filtrés
         setDisplayedProducts(filteredProducts);
       }
     });
@@ -80,7 +64,7 @@ const CoupDeCoeur = () => {
     }
 
     localStorage.setItem("favorites", JSON.stringify(storedFavorites));
-    setLikedProducts(storedFavorites.map((fav) => fav.id)); // ✅ Met à jour l'état des favoris
+    setLikedProducts(storedFavorites.map((fav) => fav.id));
   };
 
   return (
@@ -113,13 +97,11 @@ const CoupDeCoeur = () => {
               to={`/produit/${product.id}`}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300 relative"
             >
-              <Link to={`/produit/${product.id}`} className="block">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-48 object-cover"
-                />
-              </Link>
+              <img
+                src={product.image}  // ✅ Suppression du `<Link>` ici
+                alt={product.name}
+                className="w-full h-48 object-cover"
+              />
 
               <div className="absolute top-2 left-2 flex items-center group">
                 <FiCamera className="text-gray-700 text-xl group-hover:text-gray-900" />

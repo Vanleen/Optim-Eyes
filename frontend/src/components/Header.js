@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 import { FaInstagram, FaTwitter, FaPinterest, FaTiktok } from "react-icons/fa";
 import logo from "../assets/images/logo.svg";
+import { getCurrentUser, logoutUser } from "../api/authApi";
 
 const Header = () => {
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -19,6 +20,19 @@ const Header = () => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  const [user, setUser] = useState(getCurrentUser());
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setUser(getCurrentUser()); // Met à jour l'utilisateur si un changement est détecté
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [lastScrollTop, setLastScrollTop] = useState(0);
@@ -28,6 +42,10 @@ const Header = () => {
   const [favorites, setFavorites] = useState(
     () => JSON.parse(localStorage.getItem("favorites")) || []
   );
+  const handleLogout = () => {
+    logoutUser(); // Appel à la fonction de déconnexion de ton API
+    setUser(null); // Réinitialisation de l'état de l'utilisateur
+  };
 
   useEffect(() => {
     const updateCartCount = () => {
@@ -146,7 +164,7 @@ const Header = () => {
             />
           </div>
 
-          {showSearch && (
+          {showSearch && !isMenuOpen && (
             <div className="md:hidden fixed top-[89.14px] left-0 w-full px-4 py-2 bg-white shadow-md transition-all duration-300 z-40">
               <input
                 type="text"
@@ -161,41 +179,74 @@ const Header = () => {
               <div className="relative group">
                 <FiUser className="cursor-pointer hover:text-blue-600" />
                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-1000">
-                  <Link
-                    to="/login"
-                    className="flex items-center gap-2 px-4 py-2 text-gray-800 hover:bg-gray-200"
-                  >
-                    <FiUser className="p-1 border border-black rounded-full" />
-                    Mon compte
-                  </Link>
+                  {user ? (
+                    <>
+                      <p className="px-4 py-2 text-gray-800">
+                        Bienvenue, {user.name} 👋
+                      </p>
+                      <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg border border-gray-200 opacity-100 transition-opacity duration-200 z-1000">
+                        <Link
+                          to="/account"
+                          className="flex items-center gap-2 px-4 py-2 text-gray-800 hover:bg-gray-200"
+                        >
+                          <FiUser className="p-1 border border-black rounded-full" />
+                          Mon compte
+                        </Link>
+
+                        {/* 🔥 Bouton Admin visible pour tout le monde pour l'instant */}
+                        <Link
+                          to="/admin"
+                          className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-gray-200"
+                        >
+                          <FiUser className="p-1 border border-red-600 rounded-full" />
+                          Admin
+                        </Link>
+                      </div>
+
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-200 block"
+                      >
+                        Déconnexion
+                      </button>
+                    </>
+                  ) : (
+                    <Link
+                      to="/login"
+                      className="flex items-center gap-2 px-4 py-2 text-gray-800 hover:bg-gray-200"
+                    >
+                      <FiUser className="p-1 border border-black rounded-full" />
+                      Mon compte
+                    </Link>
+                  )}
                 </div>
               </div>
-
-              <Link to="/favoris">
-                <FiHeart
-                  className={`cursor-pointer text-xl ${
-                    favorites.length > 0
-                      ? "fill-current text-red-500"
-                      : "text-black"
-                  }`}
-                />
-              </Link>
-
-              <Link to="/panier" className="relative">
-                <FiShoppingCart className="cursor-pointer hover:text-blue-600 text-2xl" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                    {cartCount}
-                  </span>
-                )}
-              </Link>
             </div>
 
-            {/* Icône Calendrier (Mobile) */}
-            <button className="md:hidden mr-[-35px]">
-              <FiCalendar size={24} className="text-black" />
-            </button>
+            <Link to="/favoris">
+              <FiHeart
+                className={`cursor-pointer text-xl ${
+                  favorites.length > 0
+                    ? "fill-current text-red-500"
+                    : "text-black"
+                }`}
+              />
+            </Link>
+
+            <Link to="/panier" className="relative">
+              <FiShoppingCart className="cursor-pointer hover:text-blue-600 text-2xl" />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
           </div>
+
+          {/* Icône Calendrier (Mobile) */}
+          <button className="md:hidden mr-[-35px]">
+            <FiCalendar size={24} className="text-black" />
+          </button>
         </div>
       </header>
 
@@ -316,7 +367,10 @@ const Header = () => {
           >
             Enfant
           </Link>
-          <Link to="/recommandations" className="text-black hover:text-[#ffaf50]">
+          <Link
+            to="/recommandations"
+            className="text-black hover:text-[#ffaf50]"
+          >
             Trouver mes lunettes idéales
           </Link>
         </nav>
