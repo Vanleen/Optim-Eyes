@@ -1,0 +1,18 @@
+# 🔥 Fichiers générés automatiquement à ignorer
+node_modules/
+build/
+dist/
+.cache/
+*.pack
+*.log
+
+# 🔐 Fichiers sensibles
+.env
+
+# 🧹 Configs locales
+.vscode/
+.DS_Store
+Thumbs.db
+
+# 🧪 Services externes
+.vercel/
