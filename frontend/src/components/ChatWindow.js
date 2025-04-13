@@ -1,7 +1,9 @@
+// frontend/src/components/ChatWindow.js
 import { useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { FiChevronsDown, FiRefreshCcw } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 const ChatWindow = ({ onClose }) => {
   const [messages, setMessages] = useState([
@@ -9,10 +11,23 @@ const ChatWindow = ({ onClose }) => {
   ]);
   const [input, setInput] = useState("");
   const [questionCount, setQuestionCount] = useState(0);
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
   const maxFreeQuestions = 2;
   const isBlocked = !token && questionCount >= maxFreeQuestions;
+
+  const formatImageUrl = (url) => {
+    if (!url) return "";
+    if (url.startsWith("/uploads")) return `/images/${url.split("/").pop()}`;
+    return url;
+  };
+
+  const handleCardClick = (productId) => {
+    if (productId) {
+      navigate(`/product/${productId}`);
+    }
+  };
 
   const sendMessage = async () => {
     if (!input.trim() || isBlocked) return;
@@ -26,15 +41,24 @@ const ChatWindow = ({ onClose }) => {
       const response = await axios.post(
         "http://localhost:5000/api/chat",
         { message: input },
-        token
-          ? { headers: { Authorization: `Bearer ${token}` } }
-          : undefined
+        token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
       );
 
-      setMessages([
-        ...newMessages,
-        { sender: "bot", text: response.data.response }, // ✅ fix ici
-      ]);
+      if (response.data.type === "recommendation") {
+        setMessages([
+          ...newMessages,
+          {
+            sender: "bot",
+            type: "recommendation",
+            items: response.data.response,
+          },
+        ]);
+      } else {
+        setMessages([
+          ...newMessages,
+          { sender: "bot", text: response.data.response },
+        ]);
+      }
     } catch (error) {
       console.error("Erreur chatbot :", error);
       setMessages([
@@ -57,7 +81,7 @@ const ChatWindow = ({ onClose }) => {
 
   return (
     <motion.div
-      className="fixed bottom-24 right-6 w-96 bg-white shadow-xl rounded-xl overflow-hidden"
+      className="fixed bottom-24 right-6 w-96 bg-white shadow-xl rounded-xl overflow-hidden z-50"
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
@@ -123,22 +147,48 @@ const ChatWindow = ({ onClose }) => {
       </div>
 
       <div className="p-4 h-80 overflow-y-auto space-y-2 bg-white">
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`p-3 rounded-lg ${
-              msg.sender === "user"
-                ? "bg-blue-100 text-right"
-                : "bg-gray-100 text-left"
-            }`}
-          >
-            {msg.text}
-          </div>
-        ))}
+        {messages.map((msg, index) => {
+          if (msg.type === "recommendation") {
+            return (
+              <div key={index} className="space-y-2">
+                {msg.items.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="border rounded-lg p-2 bg-gray-50 hover:bg-gray-100 cursor-pointer shadow"
+                    onClick={() => handleCardClick(item._id)}
+                  >
+                    <img
+                      src={formatImageUrl(item.imageUrl)}
+                      alt={item.name}
+                      className="w-full h-32 object-contain mb-2 rounded"
+                    />
+                    <div className="font-bold">{item.name}</div>
+                    <div className="text-sm text-gray-600">{item.brand}</div>
+                    <div className="text-sm text-gray-700">{item.price}€</div>
+                  </div>
+                ))}
+              </div>
+            );
+          }
+
+          return (
+            <div
+              key={index}
+              className={`p-3 rounded-lg ${
+                msg.sender === "user"
+                  ? "bg-blue-100 text-right"
+                  : "bg-gray-100 text-left"
+              }`}
+            >
+              {msg.text}
+            </div>
+          );
+        })}
 
         {isBlocked && (
           <div className="text-center text-sm text-red-600 mt-4">
-            🔒 Vous avez atteint la limite de 2 questions gratuites.<br />
+            🔒 Vous avez atteint la limite de 2 questions gratuites.
+            <br />
             <a href="/login" className="underline text-blue-600">
               Connectez-vous
             </a>{" "}

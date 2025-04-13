@@ -1,3 +1,4 @@
+// backend/src/controllers/chatController.js
 import asyncHandler from "express-async-handler";
 import axios from "axios";
 import ChatMessage from "../models/ChatMessage.js";
@@ -15,13 +16,10 @@ const fetchOpenRouterResponse = async (userMessage) => {
         messages: [
           {
             role: "system",
-            content: "Tu es un expert en ophtalmologie et optique. Tu réponds toujours en français, de façon claire, bienveillante et concise. Tu ne réponds qu'aux questions sur les yeux, la vue, les lunettes, les lentilles, les examens visuels ou les maladies oculaires.",
-
+            content:
+              "Tu es un expert en optique. Tu réponds uniquement à propos des yeux, lunettes, lentilles et examens visuels, en français, de façon concise et bienveillante.",
           },
-          {
-            role: "user",
-            content: userMessage,
-          },
+          { role: "user", content: userMessage },
         ],
       },
       {
@@ -43,11 +41,11 @@ const fetchOpenRouterResponse = async (userMessage) => {
 const getFallbackResponse = (userMessage) => {
   const msg = userMessage.toLowerCase();
   if (msg.includes("yeux secs"))
-    return "Les yeux secs peuvent être soulagés avec des larmes artificielles. Consultez un ophtalmologue si les symptômes persistent.";
+    return "Les yeux secs peuvent être soulagés avec des larmes artificielles.";
   if (msg.includes("yeux rouges"))
-    return "Des yeux rouges peuvent indiquer une irritation ou une conjonctivite. Évitez de vous frotter les yeux et consultez un spécialiste.";
+    return "Des yeux rouges peuvent indiquer une irritation. Consultez un spécialiste.";
   if (msg.includes("lunettes"))
-    return "Je recommande des lunettes adaptées à votre correction visuelle. Faites un test de vue chez un opticien ou un ophtalmologue.";
+    return "Je recommande des lunettes adaptées à votre vue. Un test chez un opticien est idéal.";
   return "Je n’arrive pas à répondre pour le moment.";
 };
 
@@ -56,15 +54,53 @@ const isRecommendationRequest = (message) => {
   return keywords.some((k) => message.toLowerCase().includes(k));
 };
 
+const parseRecommendationFilters = (message) => {
+  const categoryMap = {
+    soleil: "Solaire",
+    sport: "Sport",
+    repos: "Repos",
+    optique: "Optique",
+    natation: "Natation",
+  };
+
+  let gender = null;
+  let category = null;
+  let recommendedAge = null;
+
+  const msg = message.toLowerCase();
+
+  if (msg.includes("homme")) gender = "Homme";
+  else if (msg.includes("femme")) gender = "Femme";
+  else if (msg.includes("enfant")) {
+    gender = "Enfant";
+    recommendedAge = 12;
+  }
+
+  Object.entries(categoryMap).forEach(([key, value]) => {
+    if (msg.includes(key)) category = value;
+  });
+
+  return { gender, category, recommendedAge };
+};
+
 const generateChatbotResponse = async (userMessage) => {
   const cleaned = userMessage.trim().toLowerCase();
 
   if (isRecommendationRequest(cleaned)) {
-    const glasses = await Glass.find().limit(3);
+    const filters = parseRecommendationFilters(cleaned);
+    const query = {};
+
+    if (filters.gender) query.gender = { $in: ["Mixte", filters.gender] };
+    if (filters.category) query.category = filters.category;
+    if (filters.recommendedAge) query.recommendedAge = { $lte: filters.recommendedAge };
+
+    const glasses = await Glass.find(query).limit(3);
+
     if (glasses.length > 0) {
       return {
         type: "recommendation",
         response: glasses.map((g) => ({
+          _id: g._id.toString(),
           name: g.name,
           brand: g.brand,
           price: g.price,
@@ -130,37 +166,6 @@ export const sendMessageToChatbot = asyncHandler(async (req, res) => {
     type: chatbotResponse.type,
   });
 });
-
-/*
-🧱 Ancienne version (auth obligatoire uniquement) :
-
-export const sendMessageToChatbot = asyncHandler(async (req, res) => {
-  const { userId, message } = req.body;
-
-  const user = await User.findById(userId);
-  if (!user) {
-    return res.status(400).json({ message: 'Utilisateur non trouvé.' });
-  }
-
-  const chatbotResponse = await generateChatbotResponse(message);
-
-  await ChatMessage.create({
-    userId,
-    message,
-    response:
-      typeof chatbotResponse.response === 'object'
-        ? JSON.stringify(chatbotResponse.response)
-        : chatbotResponse.response,
-  });
-
-  res.status(201).json({
-    userId,
-    message,
-    response: chatbotResponse.response,
-    type: chatbotResponse.type,
-  });
-});
-*/
 
 export const getChatHistory = asyncHandler(async (req, res) => {
   const { userId } = req.params;

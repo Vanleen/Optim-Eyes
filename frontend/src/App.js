@@ -1,3 +1,4 @@
+// frontend/src/App.js
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -30,7 +31,7 @@ function App() {
             <Route path="/catalogue" element={<Catalogue />} />
             <Route path="/catalogue/:category" element={<Catalogue />} />
             <Route path="/favoris" element={<Favoris />} />
-            <Route path="/produit/:id" element={<ProductPage />} />
+            <Route path="/product/:id" element={<ProductPage />} /> {/* ✅ Fix route */}
             <Route path="/panier" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/confirmation" element={<OrderConfirmation />} />

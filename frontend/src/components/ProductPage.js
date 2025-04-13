@@ -1,3 +1,4 @@
+// frontend/src/components/ProductPage.js
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getGlassById } from "../api/glassesApi";
@@ -8,10 +9,8 @@ const ProductPage = () => {
   const [product, setProduct] = useState(null);
   const [liked, setLiked] = useState(false);
 
-  const formatImageUrl = (url) =>
-    url?.startsWith("http") ? url : `http://localhost:5000${url}`;
-
   useEffect(() => {
+    console.log("🆔 ID reçu depuis l’URL :", id);
     const fetchData = async () => {
       try {
         const data = await getGlassById(id);
@@ -29,6 +28,11 @@ const ProductPage = () => {
       setLiked(storedFavorites.some((fav) => fav._id === product._id));
     }
   }, [product]);
+
+  const formatImageUrl = (url) => {
+    if (!url) return "/images/default-glass.jpg"; // ✅ Fallback
+    return url.startsWith("http") ? url : `http://localhost:5000${url}`;
+  };
 
   if (!product) {
     return <p className="text-center text-gray-500">Produit introuvable.</p>;
