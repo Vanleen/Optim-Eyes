@@ -3,7 +3,7 @@ import { useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { FiChevronsDown, FiRefreshCcw } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const ChatWindow = ({ onClose }) => {
   const [messages, setMessages] = useState([
@@ -11,22 +11,15 @@ const ChatWindow = ({ onClose }) => {
   ]);
   const [input, setInput] = useState("");
   const [questionCount, setQuestionCount] = useState(0);
-  const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
   const maxFreeQuestions = 2;
   const isBlocked = !token && questionCount >= maxFreeQuestions;
 
-  const formatImageUrl = (url) => {
-    if (!url) return "";
-    if (url.startsWith("/uploads")) return `/images/${url.split("/").pop()}`;
-    return url;
-  };
+  const navigate = useNavigate();
 
   const handleCardClick = (productId) => {
-    if (productId) {
-      navigate(`/product/${productId}`);
-    }
+    if (productId) navigate(`/product/${productId}`);
   };
 
   const sendMessage = async () => {
@@ -39,7 +32,7 @@ const ChatWindow = ({ onClose }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/chat",
+        "https://optim-eyes.onrender.com/api/chat",
         { message: input },
         token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
       );
@@ -78,6 +71,10 @@ const ChatWindow = ({ onClose }) => {
     setQuestionCount(0);
     setInput("");
   };
+
+  const formatImageUrl = (url) =>
+    url?.startsWith("http") ? url : `https://optim-eyes.onrender.com${url}`;
+  
 
   return (
     <motion.div
@@ -189,13 +186,13 @@ const ChatWindow = ({ onClose }) => {
           <div className="text-center text-sm text-red-600 mt-4">
             🔒 Vous avez atteint la limite de 2 questions gratuites.
             <br />
-            <a href="/login" className="underline text-blue-600">
+            <Link to="/login" className="underline text-blue-600">
               Connectez-vous
-            </a>{" "}
+            </Link>{" "}
             ou{" "}
-            <a href="/signup" className="underline text-blue-600">
+            <Link to="/signup" className="underline text-blue-600">
               créez un compte
-            </a>{" "}
+            </Link>{" "}
             pour continuer.
           </div>
         )}
