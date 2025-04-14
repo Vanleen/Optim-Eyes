@@ -171,7 +171,7 @@ const Catalogue = () => {
 
             return (
               <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden relative">
-                <Link to={`/produit/${product._id}`}>
+                <Link to={`/product/${product._id}`}>
                   <img
                     src={finalImage}
                     alt={product.name}

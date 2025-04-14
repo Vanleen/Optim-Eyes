@@ -34,7 +34,7 @@ const Favoris = () => {
                   key={product._id}
                   className="bg-white rounded-lg shadow-md overflow-hidden relative"
                 >
-                  <Link to={`/produit/${product._id}`} className="block">
+                  <Link to={`/product/${product._id}`} className="block">
                     <img
                       src={imageSrc}
                       alt={product.name}
