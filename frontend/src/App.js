@@ -16,6 +16,7 @@ import Recommandations from "./pages/Recommandations";
 import AdminDashboard from "./pages/AdminDashboard";
 import ScrollToTop from "./components/ScrollToTop";
 import { AuthProvider } from "./context/AuthContext";
+import DiagnosticPage from "./pages/DiagnosticPage";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
             <Route path="/recommandations" element={<Recommandations />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/diagnostic" element={<DiagnosticPage />} />
           </Routes>
           <ChatbotButton />
           <Footer />

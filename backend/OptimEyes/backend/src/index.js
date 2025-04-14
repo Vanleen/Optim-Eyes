@@ -20,16 +20,16 @@ connectDB();
 
 const app = express();
 app.use(cors());
-app.use(express.json());
 
-// ⬇️ Pour servir les fichiers statiques (images, etc.)
+// ✅ Augmente la taille maximale du body et des fichiers (50 Mo ici)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// ✅ Routes API
-console.log("✅ Middleware chargé, API en route...");
-
+// ✅ Routes
 app.use('/api/users', userRoutes);
 app.use('/api/glasses', glassRoutes);
 app.use('/api/orders', orderRoutes);
@@ -38,12 +38,10 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/ai', aiRoutes);
 
-// ✅ Route de test racine
+// ✅ Test
 app.get("/", (req, res) => {
-  console.log("✅ Route racine atteinte !");
   res.send("🎉 Backend OptimEyes opérationnel !");
 });
-
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

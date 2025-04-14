@@ -287,6 +287,8 @@ const Header = () => {
           <Link to="/catalogue/enfant" className="text-black hover:text-[#ffaf50]">
             Enfant
           </Link>
+          <Link to="/diagnostic" className="text-black hover:text-[#ffaf50]">
+          Diagnostic IA</Link>
           <Link to="/recommandations" className="text-black hover:text-[#ffaf50]">
             Trouver mes lunettes idéales
           </Link>

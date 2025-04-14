@@ -1,60 +1,47 @@
+// backend/src/controllers/visionDiagnosisController.js
 import axios from "axios";
 import FormData from "form-data";
 import fs from "fs";
 import path from "path";
-import { OpenAI } from "openai";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-const fallbackWithChatGPT = async (imageBase64) => {
+// ✅ Fallback IA via OpenRouter uniquement (pas ChatGPT, pas DeepSeek)
+const fallbackWithOpenRouter = async (imageBase64) => {
   try {
-    console.log("🧠 Tentative de fallback avec ChatGPT...");
-    const prompt = `Tu es un ophtalmologue. Diagnostique cette image d’œil encodée en base64 : ${imageBase64.slice(0, 100)}...`;
+    console.log("🧠 Fallback IA via OpenRouter");
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "user", content: prompt }],
-    });
+    const prompt = `Tu es un ophtalmologue. Diagnostique cette image d’œil encodée en base64 : ${imageBase64.slice(
+      0,
+      300
+    )}...`;
+
+    const response = await axios.post(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        model: "mistralai/mistral-7b-instruct",
+        messages: [{ role: "user", content: prompt }],
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const diagnostic = response.data?.choices?.[0]?.message?.content || null;
 
     return {
-      message: "Diagnostic réalisé avec ChatGPT (fallback)",
-      diagnostic: completion.choices[0].message.content,
+      message: "Diagnostic réalisé avec IA OpenRouter",
+      diagnostic,
     };
   } catch (error) {
-    console.error("❌ ChatGPT KO :", error.message);
-    try {
-      console.log("🤖 Tentative de fallback avec DeepSeek...");
-      const deepseek = await axios.post(
-        "https://api.deepseek.com/v1/chat/completions",
-        {
-          model: "deepseek-chat",
-          messages: [
-            {
-              role: "user",
-              content: `Diagnostique cette image base64 (œil) : ${imageBase64.slice(0, 100)}...`,
-            },
-          ],
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
-          },
-        }
-      );
-
-      return {
-        message: "Diagnostic réalisé avec DeepSeek (fallback)",
-        diagnostic: deepseek.data.choices[0].message.content,
-      };
-    } catch (err) {
-      console.error("❌ DeepSeek KO :", err.message);
-      return null;
-    }
+    console.error("❌ OpenRouter KO :", error.message);
+    return null;
   }
 };
 
@@ -73,20 +60,24 @@ export const diagnoseEyeHealth = async (req, res) => {
 
     const response = await axios.post(roboflowUrl, formData, {
       headers: formData.getHeaders(),
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
     });
 
     console.log("✅ Réponse Roboflow :", response.data);
 
     const predictions = response.data?.predictions;
     if (!predictions || predictions.length === 0) {
-      console.warn("⚠️ Aucune prédiction Roboflow, fallback IA...");
+      console.warn("⚠️ Aucune prédiction Roboflow, fallback IA OpenRouter...");
 
       const imageBase64 = fs.readFileSync(imagePath, { encoding: "base64" });
-      const fallbackResult = await fallbackWithChatGPT(imageBase64);
+      const fallbackResult = await fallbackWithOpenRouter(imageBase64);
 
       return fallbackResult
         ? res.json(fallbackResult)
-        : res.status(400).json({ message: "Aucun diagnostic détecté." });
+        : res
+            .status(400)
+            .json({ message: "Aucun diagnostic détecté, même via IA." });
     }
 
     const best = predictions[0];
@@ -102,6 +93,6 @@ export const diagnoseEyeHealth = async (req, res) => {
     });
   } catch (err) {
     console.error("Erreur générale :", err.message);
-    res.status(500).json({ message: "Erreur serveur." });
+    res.status(500).json({ message: "Erreur lors du diagnostic." });
   }
 };
