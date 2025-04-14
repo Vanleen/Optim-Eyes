@@ -28,6 +28,8 @@ const __dirname = path.dirname(__filename);
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // ✅ Routes API
+console.log("✅ Middleware chargé, API en route...");
+
 app.use('/api/users', userRoutes);
 app.use('/api/glasses', glassRoutes);
 app.use('/api/orders', orderRoutes);
@@ -38,8 +40,10 @@ app.use('/api/ai', aiRoutes);
 
 // ✅ Route de test racine
 app.get("/", (req, res) => {
+  console.log("✅ Route racine atteinte !");
   res.send("🎉 Backend OptimEyes opérationnel !");
 });
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
