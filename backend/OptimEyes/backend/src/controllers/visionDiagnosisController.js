@@ -51,7 +51,8 @@ export const diagnoseEyeHealth = async (req, res) => {
       return res.status(400).json({ message: "Aucune image fournie." });
     }
 
-    const imagePath = path.join(__dirname, "..", "uploads", req.file.filename);
+    const imagePath = path.resolve("src/uploads", req.file.filename);
+
     const formData = new FormData();
     formData.append("file", fs.createReadStream(imagePath));
 
