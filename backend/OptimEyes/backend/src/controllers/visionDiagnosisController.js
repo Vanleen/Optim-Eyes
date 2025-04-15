@@ -3,21 +3,21 @@ import axios from "axios";
 import FormData from "form-data";
 import fs from "fs";
 import path from "path";
+import sharp from "sharp";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// ✅ Fallback IA OpenRouter (simple texte brut, pas JSON)
-const fallbackWithOpenRouter = async (imageBase64) => {
+// ✅ Prompt enrichi et statique
+const fallbackWithOpenRouter = async () => {
   try {
-    console.log("🧠 IA de secours via OpenRouter");
-
-    const prompt = `Tu es un ophtalmologue. Diagnostique cette image d’œil encodée en base64 : ${imageBase64.slice(
-      0,
-      300
-    )}...`;
+    const prompt = `Un patient a soumis une photo de son œil.
+Décris un diagnostic médical hypothétique basé sur l’analyse visuelle typique d’un œil :
+- rougeur, sécheresse, démangeaisons, veines visibles, pupille dilatée ?
+- quelles conditions pourraient être concernées ?
+- donne un diagnostic plausible avec un conseil.`;
 
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
@@ -33,9 +33,11 @@ const fallbackWithOpenRouter = async (imageBase64) => {
       }
     );
 
+    const diagnostic = response.data?.choices?.[0]?.message?.content || null;
+
     return {
       message: "Diagnostic réalisé avec IA OpenRouter",
-      diagnostic: response.data.choices?.[0]?.message?.content || "Aucun résultat",
+      diagnostic,
     };
   } catch (error) {
     console.error("❌ OpenRouter KO :", error.message);
@@ -49,9 +51,14 @@ export const diagnoseEyeHealth = async (req, res) => {
       return res.status(400).json({ message: "Aucune image fournie." });
     }
 
-    const imagePath = path.resolve("uploads", req.file.filename);
+    const originalPath = path.resolve("uploads", req.file.filename);
+    const resizedPath = path.resolve("uploads", `resized-${req.file.filename}`);
+
+    // ✅ Resize en 512x512 avant envoi Roboflow
+    await sharp(originalPath).resize(512, 512).toFile(resizedPath);
+
     const formData = new FormData();
-    formData.append("file", fs.createReadStream(imagePath));
+    formData.append("file", fs.createReadStream(resizedPath));
 
     const roboflowUrl = `${process.env.ROBOFLOW_DIAG_MODEL_URL}?api_key=${process.env.ROBOFLOW_API_KEY}`;
     console.log("📤 Envoi de l'image à Roboflow...");
@@ -64,16 +71,19 @@ export const diagnoseEyeHealth = async (req, res) => {
 
     console.log("✅ Réponse Roboflow :", response.data);
 
+    // ✅ Nettoyage fichier temporaire
+    fs.unlinkSync(resizedPath);
+
     const predictions = response.data?.predictions;
     if (!predictions || predictions.length === 0) {
-      console.warn("⚠️ Aucune prédiction Roboflow, repli IA OpenRouter...");
-
-      const imageBase64 = fs.readFileSync(imagePath, { encoding: "base64" });
-      const fallbackResult = await fallbackWithOpenRouter(imageBase64);
+      console.warn("⚠️ Aucune prédiction Roboflow, fallback IA OpenRouter...");
+      const fallbackResult = await fallbackWithOpenRouter();
 
       return fallbackResult
         ? res.json(fallbackResult)
-        : res.status(400).json({ message: "Aucun diagnostic détecté, même via IA." });
+        : res.status(400).json({
+            message: "Aucun diagnostic détecté, même via IA.",
+          });
     }
 
     const best = predictions[0];
