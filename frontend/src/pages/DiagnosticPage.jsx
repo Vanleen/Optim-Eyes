@@ -59,7 +59,7 @@ const DiagnosticPage = () => {
 
   return (
     <section className="mt-[160px] pb-16 bg-gray-100 min-h-screen">
-      <div className="container mx-auto max-w-3xl bg-white p-6 rounded-lg shadow-md">
+      <div className="container mx-auto mt-[160px] max-w-3xl bg-white p-6 rounded-lg shadow-md">
         <h1 className="text-3xl font-semibold text-center text-gray-800 mb-8">
           Diagnostic Visuel IA 👁️
         </h1>
