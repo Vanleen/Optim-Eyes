@@ -9,30 +9,15 @@ import { dirname } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// ✅ Fallback IA via OpenRouter avec prompt spécialisé
+// ✅ Fallback IA OpenRouter (simple texte brut, pas JSON)
 const fallbackWithOpenRouter = async (imageBase64) => {
   try {
-    console.log("🧠 Fallback IA via OpenRouter");
+    console.log("🧠 IA de secours via OpenRouter");
 
-    const prompt = `
-Tu es un ophtalmologue IA. Voici une image d'œil encodée en base64.
-
-Base64 image (partielle) :
-${imageBase64.slice(0, 300)}...
-
-Analyse l’image de manière professionnelle et retourne uniquement ces informations :
-
-- Le nom de la pathologie détectée (ou "aucune anomalie détectée").
-- Un niveau de probabilité (faible, modérée, élevée).
-- Une recommandation (ex : consulter un spécialiste, hydratation, etc).
-
-Ta réponse doit suivre le format JSON :
-{
-  "diagnostic": "Nom de la pathologie",
-  "probabilite": "modérée",
-  "recommandation": "texte clair"
-}
-`;
+    const prompt = `Tu es un ophtalmologue. Diagnostique cette image d’œil encodée en base64 : ${imageBase64.slice(
+      0,
+      300
+    )}...`;
 
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
@@ -48,14 +33,9 @@ Ta réponse doit suivre le format JSON :
       }
     );
 
-    const raw = response.data?.choices?.[0]?.message?.content;
-    const parsed = JSON.parse(raw || "{}");
-
     return {
       message: "Diagnostic réalisé avec IA OpenRouter",
-      diagnostic: parsed.diagnostic || "Inconnu",
-      probabilité: parsed.probabilite || "Non précisé",
-      conseil: parsed.recommandation || "Consulter un professionnel",
+      diagnostic: response.data.choices?.[0]?.message?.content || "Aucun résultat",
     };
   } catch (error) {
     console.error("❌ OpenRouter KO :", error.message);
@@ -70,7 +50,6 @@ export const diagnoseEyeHealth = async (req, res) => {
     }
 
     const imagePath = path.resolve("uploads", req.file.filename);
-
     const formData = new FormData();
     formData.append("file", fs.createReadStream(imagePath));
 
@@ -87,16 +66,14 @@ export const diagnoseEyeHealth = async (req, res) => {
 
     const predictions = response.data?.predictions;
     if (!predictions || predictions.length === 0) {
-      console.warn("⚠️ Aucune prédiction Roboflow, fallback IA OpenRouter...");
+      console.warn("⚠️ Aucune prédiction Roboflow, repli IA OpenRouter...");
 
       const imageBase64 = fs.readFileSync(imagePath, { encoding: "base64" });
       const fallbackResult = await fallbackWithOpenRouter(imageBase64);
 
       return fallbackResult
         ? res.json(fallbackResult)
-        : res
-            .status(400)
-            .json({ message: "Aucun diagnostic détecté, même via IA." });
+        : res.status(400).json({ message: "Aucun diagnostic détecté, même via IA." });
     }
 
     const best = predictions[0];
