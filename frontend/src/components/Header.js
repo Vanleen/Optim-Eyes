@@ -10,12 +10,7 @@ import {
   FiMenu,
   FiCalendar,
 } from "react-icons/fi";
-import {
-  FaInstagram,
-  FaTwitter,
-  FaPinterest,
-  FaTiktok,
-} from "react-icons/fa";
+import { FaInstagram, FaTwitter, FaPinterest, FaTiktok } from "react-icons/fa";
 import logo from "../assets/images/logo.svg";
 import { useAuth } from "../context/AuthContext";
 
@@ -96,7 +91,11 @@ const Header = () => {
 
           <div className="flex items-center space-x-3">
             <Link to="/">
-              <img src={logo} alt="Logo" className="h-[55.8px] cursor-pointer" />
+              <img
+                src={logo}
+                alt="Logo"
+                className="h-[55.8px] cursor-pointer"
+              />
             </Link>
             <Link
               to="/"
@@ -278,35 +277,50 @@ const Header = () => {
           className="flex gap-8 text-[16px] font-normal"
           style={{ fontFamily: "Poppins", fontWeight: "400" }}
         >
-          <Link to="/catalogue/optique" className="text-black hover:text-[#ffaf50]">
+          <Link
+            to="/catalogue/optique"
+            className="text-black hover:text-[#ffaf50]"
+          >
             Optique
           </Link>
-          <Link to="/catalogue/solaire" className="text-black hover:text-[#ffaf50]">
+          <Link
+            to="/catalogue/solaire"
+            className="text-black hover:text-[#ffaf50]"
+          >
             Solaire
           </Link>
-          <Link to="/catalogue/enfant" className="text-black hover:text-[#ffaf50]">
+          <Link
+            to="/catalogue/enfant"
+            className="text-black hover:text-[#ffaf50]"
+          >
             Enfant
           </Link>
           <Link to="/diagnostic" className="text-black hover:text-[#ffaf50]">
-          Diagnostic IA</Link>
-          <Link to="/recommandations" className="text-black hover:text-[#ffaf50]">
+            Diagnostic IA
+          </Link>
+          <Link
+            to="/recommandations"
+            className="text-black hover:text-[#ffaf50]"
+          >
             Trouver mes lunettes idéales
           </Link>
         </nav>
       </motion.div>
 
-      {showBanner && (
-        <motion.div
-          className="fixed top-[145px] left-0 w-full flex justify-center items-center py-2 px-4 text-[0.85rem] bg-gray-100 text-black relative text-center z-40"
-          animate={{ opacity: isScrolled ? 0 : 1, y: isScrolled ? -50 : 0 }}
-        >
-          <Link to="/offre">2 paires de lunettes pour 0 €</Link>
-          <FiX
-            className="absolute right-4 cursor-pointer text-xl"
-            onClick={() => setShowBanner(false)}
-          />
-        </motion.div>
-      )}
+      {/*
+{showBanner && (
+  <motion.div
+    className="fixed top-[145px] left-0 w-full flex justify-center items-center py-2 px-4 text-[0.85rem] bg-gray-100 text-black relative text-center z-40"
+    animate={{ opacity: isScrolled ? 0 : 1, y: isScrolled ? -50 : 0 }}
+  >
+    <Link to="/offre">2 paires de lunettes pour 0 €</Link>
+    <FiX
+      className="absolute right-4 cursor-pointer text-xl"
+      onClick={() => setShowBanner(false)}
+    />
+  </motion.div>
+)}
+*/}
 
       {showScrollButton && (
         <button

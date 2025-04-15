@@ -1,3 +1,4 @@
+// frontend/src/pages/CoupDeCoeur.js
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FiCamera, FiHeart } from "react-icons/fi";
@@ -5,7 +6,7 @@ import { fetchAllGlasses } from "../api/glassesApi";
 
 const categories = [
   { name: "Optique", filters: ["Femme", "Homme", "Enfant", "Mixte"] },
-  { name: "Solaire", filters: ["Femme", "Femme", "Homme", "Enfant"] },
+  { name: "Solaire", filters: ["Femme", "Homme", "Enfant", "Mixte"] },
   { name: "Ecolo", filters: ["Mixte", "Mixte", "Mixte", "Mixte"] },
 ];
 
@@ -18,16 +19,9 @@ const CoupDeCoeur = () => {
     fetchAllGlasses()
       .then((data) => {
         const normalized = selectedCategory.toLowerCase();
-        const filtered = data.filter((product) => {
-          if (normalized === "optique") {
-            return product.category?.toLowerCase() === "optique";
-          } else if (normalized === "solaire") {
-            return product.category?.toLowerCase() === "solaire";
-          } else if (normalized === "ecolo") {
-            return product.category?.toLowerCase() === "ecolo";
-          }
-          return false;
-        });
+        const filtered = data.filter((product) =>
+          product.category?.toLowerCase() === normalized
+        );
 
         const subFilters = categories.find((cat) => cat.name === selectedCategory).filters;
         const used = new Set();
@@ -59,6 +53,12 @@ const CoupDeCoeur = () => {
     setLikedProducts(storedFavorites.map((fav) => fav._id));
   };
 
+  const formatImageUrl = (url) => {
+    if (!url) return "/images/default-glass.jpg";
+    if (url.startsWith("http")) return url;
+    return `https://optim-eyes.onrender.com${url}`;
+  };
+
   return (
     <section className="py-16 bg-gray-100">
       <div className="container mx-auto text-center">
@@ -69,8 +69,8 @@ const CoupDeCoeur = () => {
             <button
               key={name}
               className={`text-lg font-medium ${
-                selectedCategory === name ? "underline text-[#ffaf50]" : "text-black hover:text-[#ffaf50]"
-              }`}
+                selectedCategory === name ? "underline text-[#ffaf50]" : "text-black hover:text-[#ffaf50]"}`
+              }
               onClick={() => setSelectedCategory(name)}
             >
               {name}
@@ -87,7 +87,7 @@ const CoupDeCoeur = () => {
                 className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300 relative"
               >
                 <img
-                  src={`http://localhost:5000${product.imageUrl}`}
+                  src={formatImageUrl(product.imageUrl)}
                   alt={product.name}
                   className="w-full h-48 object-cover"
                 />

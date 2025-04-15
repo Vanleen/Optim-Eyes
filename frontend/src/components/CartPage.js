@@ -36,7 +36,7 @@ const CartPage = () => {
     cart.reduce((total, product) => total + product.price, 0).toFixed(2);
 
   return (
-    <section className="mt-[180px] pb-16 bg-gray-100 min-h-screen">
+    <section className="mt-[160px] pb-16 bg-gray-100 min-h-screen">
       <div className="container mx-auto px-6">
         <h1 className="text-4xl font-semibold text-gray-800 text-center mb-8">
           Mon Panier 🛒

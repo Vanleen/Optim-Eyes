@@ -10,7 +10,6 @@ const ProductPage = () => {
   const [liked, setLiked] = useState(false);
 
   useEffect(() => {
-    console.log("🆔 ID reçu depuis l’URL :", id);
     const fetchData = async () => {
       try {
         const data = await getGlassById(id);
@@ -30,13 +29,10 @@ const ProductPage = () => {
   }, [product]);
 
   const formatImageUrl = (url) => {
-    if (!url) return "/images/default-glass.jpg"; // ✅ Fallback
-    return url.startsWith("http") ? url : `http://localhost:5000${url}`;
+    if (!url) return "/images/default-glass.jpg";
+    if (url.startsWith("http")) return url;
+    return `https://optim-eyes.onrender.com${url}`;
   };
-
-  if (!product) {
-    return <p className="text-center text-gray-500">Produit introuvable.</p>;
-  }
 
   const toggleLike = () => {
     let storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
@@ -69,6 +65,10 @@ const ProductPage = () => {
       window.dispatchEvent(new Event("storage"));
     }
   };
+
+  if (!product) {
+    return <p className="text-center text-gray-500 mt-32">Produit introuvable.</p>;
+  }
 
   return (
     <div className="container mx-auto px-6 mt-[160px]">

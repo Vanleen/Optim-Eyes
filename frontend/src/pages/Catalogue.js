@@ -1,4 +1,4 @@
-// frontend/src/pages/Catalogue.jsx
+// frontend/src/pages/Catalogue.js
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { FiHeart, FiCamera } from "react-icons/fi";
@@ -96,9 +96,9 @@ const Catalogue = () => {
   };
 
   const getImageUrl = (path) => {
-    if (path?.startsWith("http")) return path;
-    const base = import.meta.env.VITE_BACKEND_URL || "https://optim-eyes.onrender.com";
-    return `${base}${path}`;
+    if (!path) return "/images/default-glass.jpg";
+    if (path.startsWith("http")) return path;
+    return `https://optim-eyes.onrender.com${path}`;
   };
 
   return (
