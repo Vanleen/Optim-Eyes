@@ -9,15 +9,11 @@ import { dirname } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// ✅ Fallback IA via OpenRouter uniquement
+// ✅ Fallback IA via OpenRouter
 const fallbackWithOpenRouter = async (imageBase64) => {
   try {
     console.log("🧠 Fallback IA via OpenRouter");
-
-    const prompt = `Tu es un ophtalmologue. Diagnostique cette image d’œil encodée en base64 : ${imageBase64.slice(
-      0,
-      300
-    )}...`;
+    const prompt = `Tu es un ophtalmologue. Diagnostique cette image d’œil encodée en base64 : ${imageBase64.slice(0, 300)}...`;
 
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
@@ -51,8 +47,8 @@ export const diagnoseEyeHealth = async (req, res) => {
       return res.status(400).json({ message: "Aucune image fournie." });
     }
 
-    // ✅ Corrigé ici : chemin basé sur __dirname
-    const imagePath = path.join(__dirname, "../uploads", req.file.filename);
+    // ✅ Chemin complet basé sur src/uploads
+    const imagePath = path.resolve('src/uploads', req.file.filename);
 
     const formData = new FormData();
     formData.append("file", fs.createReadStream(imagePath));

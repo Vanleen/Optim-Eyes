@@ -18,24 +18,24 @@ import aiRoutes from './routes/aiRoutes.js';
 dotenv.config();
 connectDB();
 
-const app = express();
-app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
-
-// ✅ Placement correct de __dirname AVANT l'uploadDir
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ Corrigé ici : bon chemin pour Render
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// 🔧 Créer le dossier d’uploads s’il n’existe pas (important pour Render !)
+const uploadPath = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath, { recursive: true });
 }
 
-app.use('/uploads', express.static(uploadDir));
+const app = express();
+app.use(cors());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// ✅ Routes
+// Sert les fichiers statiques
+app.use('/uploads', express.static(uploadPath));
+
+// Routes
 app.use('/api/users', userRoutes);
 app.use('/api/glasses', glassRoutes);
 app.use('/api/orders', orderRoutes);
@@ -44,9 +44,9 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/ai', aiRoutes);
 
-// ✅ Test
-app.get("/", (req, res) => {
-  res.send("🎉 Backend OptimEyes opérationnel !");
+// Test route
+app.get('/', (req, res) => {
+  res.send('🎉 Backend OptimEyes opérationnel !');
 });
 
 const PORT = process.env.PORT || 5000;
