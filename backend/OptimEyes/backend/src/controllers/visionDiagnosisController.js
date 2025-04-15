@@ -9,7 +9,7 @@ import { dirname } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// ✅ Fallback IA via OpenRouter uniquement (pas ChatGPT, pas DeepSeek)
+// ✅ Fallback IA via OpenRouter uniquement
 const fallbackWithOpenRouter = async (imageBase64) => {
   try {
     console.log("🧠 Fallback IA via OpenRouter");
@@ -51,7 +51,8 @@ export const diagnoseEyeHealth = async (req, res) => {
       return res.status(400).json({ message: "Aucune image fournie." });
     }
 
-    const imagePath = path.resolve("src/uploads", req.file.filename);
+    // ✅ Corrigé ici : chemin basé sur __dirname
+    const imagePath = path.join(__dirname, "../uploads", req.file.filename);
 
     const formData = new FormData();
     formData.append("file", fs.createReadStream(imagePath));
