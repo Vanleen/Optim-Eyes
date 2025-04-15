@@ -1,4 +1,4 @@
-// backend/OptimEyes/backend/src/controllers/visionDiagnosisController.js
+// backend/src/controllers/visionDiagnosisController.js
 import axios from "axios";
 import FormData from "form-data";
 import fs from "fs";
@@ -9,11 +9,30 @@ import { dirname } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// ✅ Fallback IA via OpenRouter uniquement
+// ✅ Fallback IA via OpenRouter avec prompt spécialisé
 const fallbackWithOpenRouter = async (imageBase64) => {
   try {
     console.log("🧠 Fallback IA via OpenRouter");
-    const prompt = `Tu es un ophtalmologue. Diagnostique cette image d’œil encodée en base64 : ${imageBase64.slice(0, 300)}...`;
+
+    const prompt = `
+Tu es un ophtalmologue IA. Voici une image d'œil encodée en base64.
+
+Base64 image (partielle) :
+${imageBase64.slice(0, 300)}...
+
+Analyse l’image de manière professionnelle et retourne uniquement ces informations :
+
+- Le nom de la pathologie détectée (ou "aucune anomalie détectée").
+- Un niveau de probabilité (faible, modérée, élevée).
+- Une recommandation (ex : consulter un spécialiste, hydratation, etc).
+
+Ta réponse doit suivre le format JSON :
+{
+  "diagnostic": "Nom de la pathologie",
+  "probabilite": "modérée",
+  "recommandation": "texte clair"
+}
+`;
 
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
@@ -29,11 +48,14 @@ const fallbackWithOpenRouter = async (imageBase64) => {
       }
     );
 
-    const diagnostic = response.data?.choices?.[0]?.message?.content || null;
+    const raw = response.data?.choices?.[0]?.message?.content;
+    const parsed = JSON.parse(raw || "{}");
 
     return {
       message: "Diagnostic réalisé avec IA OpenRouter",
-      diagnostic,
+      diagnostic: parsed.diagnostic || "Inconnu",
+      probabilité: parsed.probabilite || "Non précisé",
+      conseil: parsed.recommandation || "Consulter un professionnel",
     };
   } catch (error) {
     console.error("❌ OpenRouter KO :", error.message);
@@ -47,8 +69,7 @@ export const diagnoseEyeHealth = async (req, res) => {
       return res.status(400).json({ message: "Aucune image fournie." });
     }
 
-    // ✅ Corrigé : le dossier 'uploads' est à la racine du projet (pas dans src/)
-    const imagePath = path.resolve('uploads', req.file.filename);
+    const imagePath = path.resolve("uploads", req.file.filename);
 
     const formData = new FormData();
     formData.append("file", fs.createReadStream(imagePath));
@@ -73,7 +94,9 @@ export const diagnoseEyeHealth = async (req, res) => {
 
       return fallbackResult
         ? res.json(fallbackResult)
-        : res.status(400).json({ message: "Aucun diagnostic détecté, même via IA." });
+        : res
+            .status(400)
+            .json({ message: "Aucun diagnostic détecté, même via IA." });
     }
 
     const best = predictions[0];
