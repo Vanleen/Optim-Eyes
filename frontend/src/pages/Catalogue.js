@@ -1,3 +1,4 @@
+// frontend/src/pages/Catalogue.jsx
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { FiHeart, FiCamera } from "react-icons/fi";
@@ -94,6 +95,12 @@ const Catalogue = () => {
     setLikedProducts(stored.map((p) => p._id));
   };
 
+  const getImageUrl = (path) => {
+    if (path?.startsWith("http")) return path;
+    const base = import.meta.env.VITE_BACKEND_URL || "https://optim-eyes.onrender.com";
+    return `${base}${path}`;
+  };
+
   return (
     <section className="mt-[160px] pb-16 bg-gray-100 min-h-screen">
       <div className="container mx-auto px-6">
@@ -164,43 +171,37 @@ const Catalogue = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {sortedProducts.map((product) => {
-            const finalImage = product.imageUrl?.startsWith("http")
-              ? product.imageUrl
-              : `http://localhost:5000${product.imageUrl}`;
-
-            return (
-              <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden relative">
-                <Link to={`/product/${product._id}`}>
-                  <img
-                    src={finalImage}
-                    alt={product.name}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="absolute top-2 left-2 flex items-center group">
-                    <FiCamera className="text-gray-700 text-xl group-hover:text-gray-900" />
-                    <span className="ml-2 text-sm text-gray-700 font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                      ESSAYER
-                    </span>
-                  </div>
-                </Link>
-
-                <button
-                  className={`absolute bottom-3 right-3 text-xl ${
-                    likedProducts.includes(product._id) ? "text-red-500" : "text-gray-400"
-                  }`}
-                  onClick={() => toggleLike(product)}
-                >
-                  <FiHeart className={likedProducts.includes(product._id) ? "fill-current text-red-500" : ""} />
-                </button>
-
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold">{product.name}</h3>
-                  <p className="text-gray-600">{product.price} €</p>
+          {sortedProducts.map((product) => (
+            <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden relative">
+              <Link to={`/product/${product._id}`}>
+                <img
+                  src={getImageUrl(product.imageUrl)}
+                  alt={product.name}
+                  className="w-full h-48 object-cover"
+                />
+                <div className="absolute top-2 left-2 flex items-center group">
+                  <FiCamera className="text-gray-700 text-xl group-hover:text-gray-900" />
+                  <span className="ml-2 text-sm text-gray-700 font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    ESSAYER
+                  </span>
                 </div>
+              </Link>
+
+              <button
+                className={`absolute bottom-3 right-3 text-xl ${
+                  likedProducts.includes(product._id) ? "text-red-500" : "text-gray-400"
+                }`}
+                onClick={() => toggleLike(product)}
+              >
+                <FiHeart className={likedProducts.includes(product._id) ? "fill-current text-red-500" : ""} />
+              </button>
+
+              <div className="p-4">
+                <h3 className="text-lg font-semibold">{product.name}</h3>
+                <p className="text-gray-600">{product.price} €</p>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       </div>
     </section>
