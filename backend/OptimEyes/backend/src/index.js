@@ -23,19 +23,19 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// ✅ Placement correct de __dirname AVANT l'uploadDir
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 🔧 Créer le dossier uploads s’il n'existe pas (important pour Render)
+// ✅ Corrigé ici : bon chemin pour Render
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+  fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// 📁 Servir les fichiers d’uploads
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(uploadDir));
 
-// ✅ Routes API
+// ✅ Routes
 app.use('/api/users', userRoutes);
 app.use('/api/glasses', glassRoutes);
 app.use('/api/orders', orderRoutes);
@@ -44,7 +44,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/ai', aiRoutes);
 
-// ✅ Route de test
+// ✅ Test
 app.get("/", (req, res) => {
   res.send("🎉 Backend OptimEyes opérationnel !");
 });
