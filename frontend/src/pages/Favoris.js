@@ -1,3 +1,4 @@
+// frontend/src/pages/Favoris.js
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FiHeart } from "react-icons/fi";
@@ -16,6 +17,12 @@ const Favoris = () => {
     localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
   };
 
+  const formatImageUrl = (url) => {
+    if (!url) return "/placeholder.png";
+    if (url.startsWith("http")) return url;
+    return `https://optim-eyes.onrender.com${url}`;
+  };
+
   return (
     <section className="mt-[160px] pb-16 bg-gray-100 min-h-screen">
       <div className="container mx-auto px-6">
@@ -25,41 +32,36 @@ const Favoris = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {favorites.length > 0 ? (
-            favorites.map((product) => {
-              const imageSrc = product.imageUrl?.startsWith("http")
-                ? product.imageUrl
-                : `http://localhost:5000${product.imageUrl}`;
-              return (
-                <div
-                  key={product._id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden relative"
+            favorites.map((product) => (
+              <div
+                key={product._id}
+                className="bg-white rounded-lg shadow-md overflow-hidden relative"
+              >
+                <Link to={`/product/${product._id}`} className="block">
+                  <img
+                    src={formatImageUrl(product.imageUrl)}
+                    alt={product.name}
+                    className="w-full h-48 object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/placeholder.png";
+                    }}
+                  />
+                </Link>
+
+                <button
+                  className="absolute bottom-3 right-3 text-xl text-red-500"
+                  onClick={() => removeFavorite(product._id)}
                 >
-                  <Link to={`/product/${product._id}`} className="block">
-                    <img
-                      src={imageSrc}
-                      alt={product.name}
-                      className="w-full h-48 object-cover"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "/placeholder.png";
-                      }}
-                    />
-                  </Link>
+                  <FiHeart className="fill-current text-red-500" />
+                </button>
 
-                  <button
-                    className="absolute bottom-3 right-3 text-xl text-red-500"
-                    onClick={() => removeFavorite(product._id)}
-                  >
-                    <FiHeart className="fill-current text-red-500" />
-                  </button>
-
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold">{product.name}</h3>
-                    <p className="text-gray-600">{product.price} €</p>
-                  </div>
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold">{product.name}</h3>
+                  <p className="text-gray-600">{product.price} €</p>
                 </div>
-              );
-            })
+              </div>
+            ))
           ) : (
             <p className="text-center text-gray-500">
               Aucun favori pour le moment.

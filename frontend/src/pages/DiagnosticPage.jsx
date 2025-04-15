@@ -7,20 +7,20 @@ const DiagnosticPage = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [selecting, setSelecting] = useState(false);
   const fileInputRef = useRef(null);
+
+  const handleFileSelect = () => {
+    fileInputRef.current?.click();
+  };
 
   const handleChange = (e) => {
     const file = e.target.files[0];
     setImage(file);
     setResult(null);
-    setSelecting(false);
 
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
+      reader.onloadend = () => setImagePreview(reader.result);
       reader.readAsDataURL(file);
     } else {
       setImagePreview(null);
@@ -32,11 +32,6 @@ const DiagnosticPage = () => {
     setImagePreview(null);
     setResult(null);
     fileInputRef.current.value = null;
-  };
-
-  const handleFileSelect = () => {
-    setSelecting(true);
-    fileInputRef.current?.click();
   };
 
   const handleSubmit = async (e) => {
@@ -64,63 +59,61 @@ const DiagnosticPage = () => {
 
   return (
     <section className="mt-[160px] pb-16 bg-gray-100 min-h-screen">
-      <div className="container mx-auto px-6">
-        <h1 className="text-4xl font-semibold text-gray-800 text-center mb-8">
+      <div className="container mx-auto max-w-3xl bg-white p-6 rounded-lg shadow-md">
+        <h1 className="text-3xl font-semibold text-center text-gray-800 mb-8">
           Diagnostic Visuel IA 👁️
         </h1>
 
-        <form onSubmit={handleSubmit} className="max-w-xl mx-auto text-center space-y-4">
-          <button
-            type="button"
-            onClick={handleFileSelect}
-            className={`px-6 py-2 rounded text-white font-semibold bg-[#0077B6] hover:bg-[#005f91] transition duration-200 ${
-              selecting ? "opacity-70" : ""
-            }`}
-          >
-            {selecting ? "Chargement..." : "📤 Ajouter une image"}
-          </button>
-
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            onChange={handleChange}
-            className="hidden"
-          />
-
-          {image && (
-            <p className="text-sm text-gray-600">📎 {image.name}</p>
-          )}
-
-          {imagePreview && (
-            <div className="relative mt-2">
-              <img
-                src={imagePreview}
-                alt="Aperçu"
-                className="w-full h-auto rounded shadow"
+        <form onSubmit={handleSubmit} className="flex flex-col space-y-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="w-full md:w-1/2">
+              {imagePreview ? (
+                <div className="relative w-full">
+                  <img
+                    src={imagePreview}
+                    alt="Aperçu"
+                    className="rounded shadow object-cover max-h-64 w-full"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute top-2 right-2 bg-white text-red-600 rounded-full px-2 py-0.5 font-bold shadow hover:bg-red-100"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleFileSelect}
+                  className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col justify-center items-center text-gray-500 hover:border-[#0077B6] hover:text-[#0077B6] transition"
+                >
+                  📤 Cliquez ou glissez une image
+                </button>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleChange}
+                className="hidden"
               />
+            </div>
+
+            <div className="w-full md:w-1/2 text-center">
               <button
-                type="button"
-                onClick={handleRemoveImage}
-                className="absolute top-2 right-2 bg-white text-red-600 rounded-full px-2 py-0.5 font-bold shadow hover:bg-red-100"
-                aria-label="Supprimer l'image"
+                type="submit"
+                disabled={!image || loading}
+                className="w-full px-6 py-3 bg-[#ffaf50] text-white font-semibold rounded-md hover:bg-[#e69940] transition disabled:bg-gray-400"
               >
-                ✕
+                {loading ? "Analyse en cours..." : "Analyser l’image"}
               </button>
             </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={!image || loading}
-            className="bg-[#ffaf50] px-6 py-2 rounded text-white font-semibold hover:bg-[#e69940] disabled:bg-gray-400"
-          >
-            {loading ? "Analyse en cours..." : "Analyser l’image"}
-          </button>
+          </div>
         </form>
 
         {result && (
-          <div className="mt-8 bg-white p-4 rounded shadow max-w-xl mx-auto">
+          <div className="mt-8 bg-gray-50 p-4 rounded shadow text-left">
             <h3 className="font-bold text-lg mb-2">Résultat :</h3>
             <pre className="whitespace-pre-wrap text-sm text-gray-800">
               {JSON.stringify(result, null, 2)}

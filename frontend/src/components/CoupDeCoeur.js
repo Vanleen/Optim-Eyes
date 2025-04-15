@@ -6,7 +6,7 @@ import { fetchAllGlasses } from "../api/glassesApi";
 
 const categories = [
   { name: "Optique", filters: ["Femme", "Homme", "Enfant", "Mixte"] },
-  { name: "Solaire", filters: ["Femme", "Homme", "Enfant", "Mixte"] },
+  { name: "Solaire", filters: ["Femme", "Femme", "Homme", "Enfant"] }, // 2 femmes
   { name: "Ecolo", filters: ["Mixte", "Mixte", "Mixte", "Mixte"] },
 ];
 
@@ -69,8 +69,10 @@ const CoupDeCoeur = () => {
             <button
               key={name}
               className={`text-lg font-medium ${
-                selectedCategory === name ? "underline text-[#ffaf50]" : "text-black hover:text-[#ffaf50]"}`
-              }
+                selectedCategory === name
+                  ? "underline text-[#ffaf50]"
+                  : "text-black hover:text-[#ffaf50]"
+              }`}
               onClick={() => setSelectedCategory(name)}
             >
               {name}
@@ -99,14 +101,22 @@ const CoupDeCoeur = () => {
                 </div>
                 <button
                   className={`absolute bottom-3 right-3 text-xl ${
-                    likedProducts.includes(product._id) ? "text-red-500" : "text-gray-400"
+                    likedProducts.includes(product._id)
+                      ? "text-red-500"
+                      : "text-gray-400"
                   }`}
                   onClick={(e) => {
                     e.preventDefault();
                     toggleLike(product);
                   }}
                 >
-                  <FiHeart className={likedProducts.includes(product._id) ? "fill-current text-red-500" : ""} />
+                  <FiHeart
+                    className={
+                      likedProducts.includes(product._id)
+                        ? "fill-current text-red-500"
+                        : ""
+                    }
+                  />
                 </button>
                 <div className="p-4">
                   <h3 className="text-lg font-semibold">{product.name}</h3>
@@ -115,7 +125,9 @@ const CoupDeCoeur = () => {
               </Link>
             ))
           ) : (
-            <p className="text-gray-500 col-span-full">Aucun produit à afficher.</p>
+            <p className="text-gray-500 col-span-full">
+              Aucun produit à afficher.
+            </p>
           )}
         </div>
 

@@ -1,3 +1,4 @@
+// frontend/src/pages/CheckoutPage.js
 import { Link } from "react-router-dom";
 import CheckoutForm from "../components/CheckoutForm";
 
@@ -6,6 +7,13 @@ const CheckoutPage = () => {
 
   const getTotalPrice = () => {
     return cart.reduce((total, product) => total + product.price, 0).toFixed(2);
+  };
+
+  const formatImageUrl = (url) => {
+    if (!url) return "/placeholder.png";
+    return url.startsWith("http")
+      ? url
+      : `https://optim-eyes.onrender.com${url}`;
   };
 
   return (
@@ -21,29 +29,23 @@ const CheckoutPage = () => {
 
           {cart.length > 0 ? (
             <ul className="space-y-4">
-              {cart.map((product) => {
-                const imageSrc = product.imageUrl?.startsWith("http")
-                  ? product.imageUrl
-                  : `http://localhost:5000${product.imageUrl}`;
-
-                return (
-                  <li key={product._id} className="flex items-center border-b pb-4">
-                    <img
-                      src={imageSrc}
-                      alt={product.name}
-                      className="w-16 h-16 object-cover rounded mr-4"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "/placeholder.png";
-                      }}
-                    />
-                    <div className="flex-1">
-                      <p className="font-medium">{product.name}</p>
-                      <p className="text-gray-600 font-semibold">{product.price} €</p>
-                    </div>
-                  </li>
-                );
-              })}
+              {cart.map((product) => (
+                <li key={product._id} className="flex items-center border-b pb-4">
+                  <img
+                    src={formatImageUrl(product.imageUrl)}
+                    alt={product.name}
+                    className="w-16 h-16 object-cover rounded mr-4"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/placeholder.png";
+                    }}
+                  />
+                  <div className="flex-1">
+                    <p className="font-medium">{product.name}</p>
+                    <p className="text-gray-600 font-semibold">{product.price} €</p>
+                  </div>
+                </li>
+              ))}
             </ul>
           ) : (
             <p className="text-gray-500">Votre panier est vide.</p>

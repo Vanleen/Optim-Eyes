@@ -1,3 +1,4 @@
+// frontend/src/pages/CartPage.js
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FiTrash } from "react-icons/fi";
@@ -20,7 +21,9 @@ const CartPage = () => {
 
   const formatImageUrl = (url) => {
     if (!url) return "/placeholder.png";
-    return url.startsWith("http") ? url : `http://localhost:5000${url}`;
+    return url.startsWith("http")
+      ? url
+      : `https://optim-eyes.onrender.com${url}`;
   };
 
   const removeFromCart = (id) => {
