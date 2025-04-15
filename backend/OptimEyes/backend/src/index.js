@@ -1,19 +1,20 @@
-// backend/OptimEyes/backend/index.js
+// backend/OptimEyes/backend/src/index.js
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import connectDB from './src/config/db.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import userRoutes from './src/routes/userRoutes.js';
-import glassRoutes from './src/routes/glassesRoutes.js';
-import orderRoutes from './src/routes/orderRoutes.js';
-import chatRoutes from './src/routes/chatRoutes.js';
-import paymentRoutes from './src/routes/paymentRoutes.js';
-import cartRoutes from './src/routes/cartRoutes.js';
-import aiRoutes from './src/routes/aiRoutes.js';
+import connectDB from './config/db.js';
+
+import userRoutes from './routes/userRoutes.js';
+import glassRoutes from './routes/glassesRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
+import chatRoutes from './routes/chatRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
+import cartRoutes from './routes/cartRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
 
 dotenv.config();
 connectDB();
@@ -21,8 +22,8 @@ connectDB();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ Création du dossier 'uploads' à la racine (PAS dans src/)
-const uploadDir = path.join(__dirname, 'uploads');
+// ✅ Crée 'uploads' à la racine si besoin
+const uploadDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
 }
@@ -32,10 +33,9 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// ✅ Sert les images uploadées
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// ✅ Routes API
+// Routes API
 app.use('/api/users', userRoutes);
 app.use('/api/glasses', glassRoutes);
 app.use('/api/orders', orderRoutes);
@@ -44,6 +44,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/ai', aiRoutes);
 
+// Test route
 app.get('/', (req, res) => {
   res.send('🎉 Backend OptimEyes opérationnel !');
 });
