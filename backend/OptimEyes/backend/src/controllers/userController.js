@@ -58,9 +58,10 @@ export const loginUser = asyncHandler(async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        isAdmin: user.isAdmin, // ✅ AJOUT ICI
+        isAdmin: user.isAdmin || false, // ✅ Défaut sécurisé
         token: generateToken(user._id),
       });
+      
     } else {
       console.log("❌ Identifiants invalides pour:", email);
       res.status(401);
