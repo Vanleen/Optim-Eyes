@@ -57,6 +57,14 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const currentUser = getCurrentUser();
     if (currentUser) setUser(currentUser);
+    if (currentUser?.token) {
+      fetchProfile(currentUser.token).then(profile => {
+        const fullUser = { ...currentUser, isAdmin: profile?.isAdmin || false };
+        setUser(fullUser);
+        localStorage.setItem("user", JSON.stringify(fullUser));
+      });
+    }
+    
     setLoading(false);
   }, []);
 
