@@ -23,26 +23,28 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const currentUser = getCurrentUser();
-    if (currentUser?.token) {
-      fetchProfile(currentUser.token).then((profile) => {
-        const fullUser = {
-          ...currentUser,
-          isAdmin: profile?.isAdmin || false,
-        };
-        localStorage.setItem("user", JSON.stringify(fullUser));
-        setUser(fullUser);
-        setLoading(false);
-      });
-    } else {
+    const loadUser = async () => {
+      const cachedUser = getCurrentUser();
+      if (cachedUser && cachedUser.token) {
+        try {
+          const profile = await fetchProfile(cachedUser.token);
+          const fullUser = { ...cachedUser, isAdmin: profile.isAdmin };
+          localStorage.setItem("user", JSON.stringify(fullUser));
+          setUser(fullUser);
+        } catch (e) {
+          console.error("❌ Erreur chargement profil :", e);
+          apiLogoutUser();
+        }
+      }
       setLoading(false);
-    }
+    };
+    loadUser();
   }, []);
 
   const login = async (credentials) => {
     const data = await apiLoginUser(credentials);
     const profile = await fetchProfile(data.token);
-    const fullUser = { ...data, isAdmin: profile.isAdmin || false };
+    const fullUser = { ...data, isAdmin: profile.isAdmin };
     localStorage.setItem("user", JSON.stringify(fullUser));
     setUser(fullUser);
     return fullUser;
@@ -51,7 +53,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (credentials) => {
     const data = await apiRegisterUser(credentials);
     const profile = await fetchProfile(data.token);
-    const fullUser = { ...data, isAdmin: profile.isAdmin || false };
+    const fullUser = { ...data, isAdmin: profile.isAdmin };
     localStorage.setItem("user", JSON.stringify(fullUser));
     setUser(fullUser);
     return fullUser;
@@ -62,17 +64,17 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  const value = {
-    user,
-    isAuthenticated: !!user,
-    login,
-    register,
-    logout,
-    loading,
-  };
-
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        login,
+        register,
+        logout,
+        loading,
+      }}
+    >
       {!loading && children}
     </AuthContext.Provider>
   );
@@ -83,3 +85,4 @@ export const useAuth = () => {
   if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
+x
