@@ -14,12 +14,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const currentUser = getCurrentUser();
-    if (currentUser) setUser(currentUser);
-    setLoading(false);
-  }, []);
-
   const fetchProfile = async (token) => {
     const { data } = await axios.get(
       `${process.env.REACT_APP_API_URL}/api/users/profile`,
@@ -28,20 +22,34 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
+  useEffect(() => {
+    const init = async () => {
+      const localUser = getCurrentUser();
+      if (localUser?.token) {
+        try {
+          const profile = await fetchProfile(localUser.token);
+          const fullUser = { ...localUser, isAdmin: profile.isAdmin };
+          localStorage.setItem("user", JSON.stringify(fullUser));
+          setUser(fullUser);
+        } catch (err) {
+          console.error("❌ Erreur lors du fetch profil :", err);
+          apiLogoutUser();
+          setUser(null);
+        }
+      }
+      setLoading(false);
+    };
+    init();
+  }, []);
+
   const login = async (credentials) => {
     const data = await apiLoginUser(credentials);
     const profile = await fetchProfile(data.token);
 
-    const fullUser = {
-      _id: profile._id,
-      name: profile.name,
-      email: profile.email,
-      isAdmin: profile.isAdmin,
-      token: data.token,
-    };
-
+    const fullUser = { ...data, isAdmin: profile.isAdmin };
     localStorage.setItem("user", JSON.stringify(fullUser));
     setUser(fullUser);
+
     return fullUser;
   };
 
@@ -49,16 +57,10 @@ export const AuthProvider = ({ children }) => {
     const data = await apiRegisterUser(credentials);
     const profile = await fetchProfile(data.token);
 
-    const fullUser = {
-      _id: profile._id,
-      name: profile.name,
-      email: profile.email,
-      isAdmin: profile.isAdmin,
-      token: data.token,
-    };
-
+    const fullUser = { ...data, isAdmin: profile.isAdmin };
     localStorage.setItem("user", JSON.stringify(fullUser));
     setUser(fullUser);
+
     return fullUser;
   };
 
