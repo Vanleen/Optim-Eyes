@@ -1,14 +1,26 @@
+// frontend/src/api/authApi.js
 import axios from "axios";
 
 const API_BASE_URL = `${process.env.REACT_APP_API_URL}/api/users`;
+
+// ✅ Centralise le stockage (y compris isAdmin)
+const storeUser = (userData) => {
+  if (userData && userData.token) {
+    localStorage.setItem("token", userData.token);
+    localStorage.setItem("user", JSON.stringify(userData)); // ✅ Inclut isAdmin
+  }
+};
 
 // 🟢 Inscription
 export const registerUser = async (userData) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/register`, userData);
+    storeUser(response.data); // ✅
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Erreur lors de l'inscription");
+    throw new Error(
+      error.response?.data?.message || "Erreur lors de l'inscription"
+    );
   }
 };
 
@@ -16,18 +28,15 @@ export const registerUser = async (userData) => {
 export const loginUser = async (userData) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/login`, userData);
-
-    // ✅ Stocker le token et les infos utilisateur
-    localStorage.setItem("token", response.data.token);
-    localStorage.setItem("user", JSON.stringify(response.data));  
-
+    storeUser(response.data); // ✅
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Identifiants invalides");
+    throw new Error(
+      error.response?.data?.message || "Identifiants invalides"
+    );
   }
 };
 
-// 🟢 Récupérer l'utilisateur connecté
 // 🟢 Récupérer l'utilisateur connecté
 export const getCurrentUser = () => {
   try {
@@ -40,10 +49,9 @@ export const getCurrentUser = () => {
   }
 };
 
-
 // 🔴 Déconnexion
 export const logoutUser = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
-  window.location.reload(); // 🔄 Recharge la page pour appliquer la déconnexion
+  window.location.reload(); // 🔄
 };
