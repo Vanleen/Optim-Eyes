@@ -1,11 +1,12 @@
-// frontend/src/api/authApi.js
 import axios from "axios";
 
 const API_BASE_URL = `${process.env.REACT_APP_API_URL}/api/users`;
 
-// ✅ Centralise le stockage (y compris isAdmin)
+// ✅ Stockage centralisé et propre (avec purge préalable)
 const storeUser = (userData) => {
   if (userData && userData.token) {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     localStorage.setItem("token", userData.token);
     localStorage.setItem("user", JSON.stringify(userData)); // ✅ Inclut isAdmin
   }
@@ -15,7 +16,7 @@ const storeUser = (userData) => {
 export const registerUser = async (userData) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/register`, userData);
-    storeUser(response.data); // ✅
+    storeUser(response.data);
     return response.data;
   } catch (error) {
     throw new Error(
@@ -28,7 +29,7 @@ export const registerUser = async (userData) => {
 export const loginUser = async (userData) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/login`, userData);
-    storeUser(response.data); // ✅
+    storeUser(response.data);
     return response.data;
   } catch (error) {
     throw new Error(
