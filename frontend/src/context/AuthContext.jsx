@@ -21,14 +21,22 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     const data = await apiLoginUser(credentials);
-    setUser(data);
-    return data;
+    const enhancedUser = {
+      ...data,
+      isAdmin: data.isAdmin || false, // ✅ Ajout isAdmin
+    };
+    setUser(enhancedUser);
+    return enhancedUser;
   };
 
   const register = async (credentials) => {
     const data = await apiRegisterUser(credentials);
-    setUser(data);
-    return data;
+    const enhancedUser = {
+      ...data,
+      isAdmin: data.isAdmin || false, // ✅ Ajout isAdmin
+    };
+    setUser(enhancedUser);
+    return enhancedUser;
   };
 
   const logout = () => {
@@ -45,7 +53,11 @@ export const AuthProvider = ({ children }) => {
     loading,
   };
 
-  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {

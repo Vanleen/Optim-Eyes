@@ -16,6 +16,8 @@ import { useAuth } from "../context/AuthContext";
 
 const Header = () => {
   const { user, logout } = useAuth();
+  console.log("🕵️‍♀️ User connecté :", user);
+
 
   const [cartCount, setCartCount] = useState(0);
   const [favorites, setFavorites] = useState(

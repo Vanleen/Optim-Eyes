@@ -47,24 +47,26 @@ export const registerUser = asyncHandler(async (req, res) => {
 // ✅ Connexion utilisateur (avec génération du token)
 export const loginUser = asyncHandler(async (req, res) => {
     console.log("📌 Requête reçue: POST /api/users/login", req.body);
-
+  
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-
+  
     if (user && (await user.matchPassword(password))) {
-        console.log("✅ Connexion réussie:", user.email);
-        res.json({ 
-            _id: user._id, 
-            name: user.name, 
-            email: user.email,
-            token: generateToken(user._id) // ✅ Génération du JWT
-        });
+      console.log("✅ Connexion réussie:", user.email);
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin, // ✅ AJOUT ICI
+        token: generateToken(user._id),
+      });
     } else {
-        console.log("❌ Identifiants invalides pour:", email);
-        res.status(401);
-        throw new Error("Identifiants invalides.");
+      console.log("❌ Identifiants invalides pour:", email);
+      res.status(401);
+      throw new Error("Identifiants invalides.");
     }
-});
+  });
+  
 
 // ✅ Récupération du profil utilisateur (protégé par authentification)
 export const getUserProfile = asyncHandler(async (req, res) => {
