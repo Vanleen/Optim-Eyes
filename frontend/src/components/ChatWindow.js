@@ -1,4 +1,3 @@
-// frontend/src/components/ChatWindow.js
 import { useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
@@ -22,10 +21,17 @@ const ChatWindow = ({ onClose }) => {
     if (productId) navigate(`/product/${productId}`);
   };
 
+  const containsKeywords = (text) => {
+    const keywords = ["lunette", "monture", "verres", "verre"];
+    const normalized = text.toLowerCase();
+    return keywords.some((kw) => normalized.includes(kw));
+  };
+
   const sendMessage = async () => {
     if (!input.trim() || isBlocked) return;
 
-    const newMessages = [...messages, { sender: "user", text: input }];
+    const userMsg = { sender: "user", text: input };
+    const newMessages = [...messages, userMsg];
     setMessages(newMessages);
     setInput("");
     setQuestionCount((prev) => prev + 1);
@@ -37,23 +43,33 @@ const ChatWindow = ({ onClose }) => {
         token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
       );
 
-      if (response.data.type === "recommendation") {
-        setMessages([
-          ...newMessages,
-          {
-            sender: "bot",
-            type: "recommendation",
-            items: response.data.response,
-          },
-        ]);
+      const botResponse = response.data.response;
+      const isRecommendation = response.data.type === "recommendation";
+      const autoSuggest = containsKeywords(input);
+
+      const newBotMessages = [];
+
+      if (isRecommendation) {
+        newBotMessages.push({
+          sender: "bot",
+          type: "recommendation",
+          items: botResponse,
+        });
       } else {
-        setMessages([
-          ...newMessages,
-          { sender: "bot", text: response.data.response },
-        ]);
+        newBotMessages.push({ sender: "bot", text: botResponse });
       }
+
+      if (autoSuggest) {
+        newBotMessages.push({
+          sender: "bot",
+          type: "link",
+          text: "Voici quelques modèles que je te recommande !",
+          url: "/recommandations",
+        });
+      }
+
+      setMessages([...newMessages, ...newBotMessages]);
     } catch (error) {
-      console.error("Erreur chatbot :", error);
       setMessages([
         ...newMessages,
         {
@@ -74,7 +90,6 @@ const ChatWindow = ({ onClose }) => {
 
   const formatImageUrl = (url) =>
     url?.startsWith("http") ? url : `https://optim-eyes.onrender.com${url}`;
-  
 
   return (
     <motion.div
@@ -164,6 +179,23 @@ const ChatWindow = ({ onClose }) => {
                     <div className="text-sm text-gray-700">{item.price}€</div>
                   </div>
                 ))}
+              </div>
+            );
+          }
+
+          if (msg.type === "link") {
+            return (
+              <div
+                key={index}
+                className="bg-gray-100 p-3 rounded-lg text-left space-y-2"
+              >
+                <p>{msg.text}</p>
+                <Link
+                  to={msg.url}
+                  className="inline-block px-4 py-2 bg-[#ffaf50] text-white rounded hover:bg-[#e69940] text-sm"
+                >
+                  Voir mes recommandations
+                </Link>
               </div>
             );
           }
