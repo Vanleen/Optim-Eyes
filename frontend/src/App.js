@@ -18,6 +18,10 @@ import ScrollToTop from "./components/ScrollToTop";
 import { AuthProvider } from "./context/AuthContext";
 import DiagnosticPage from "./pages/DiagnosticPage";
 import FormulaireSante from "./pages/FormulaireSante";
+import AdminUsers from "./pages/AdminUsers";
+import AdminOrders from "./pages/AdminOrders";
+import AdminForms from "./pages/AdminForms";
+import AdminGlasses from "./pages/AdminGlasses";
 
 function App() {
   return (
@@ -33,7 +37,8 @@ function App() {
             <Route path="/catalogue" element={<Catalogue />} />
             <Route path="/catalogue/:category" element={<Catalogue />} />
             <Route path="/favoris" element={<Favoris />} />
-            <Route path="/product/:id" element={<ProductPage />} /> {/* ✅ Fix route */}
+            <Route path="/product/:id" element={<ProductPage />} />{" "}
+            {/* ✅ Fix route */}
             <Route path="/panier" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/confirmation" element={<OrderConfirmation />} />
@@ -42,6 +47,10 @@ function App() {
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/diagnostic" element={<DiagnosticPage />} />
             <Route path="/formulaire-sante" element={<FormulaireSante />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/admin/forms" element={<AdminForms />} />
+            <Route path="/admin/glasses" element={<AdminGlasses />} />
           </Routes>
           <ChatbotButton />
           <Footer />

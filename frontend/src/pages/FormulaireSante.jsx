@@ -43,7 +43,7 @@ const FormulaireSante = () => {
   };
 
   return (
-    <section className="mt-[160px] pb-16 bg-gray-100 min-h-screen">
+    <section className="pt-40 pb-16 bg-gray-100 min-h-screen">
       <div className="container mx-auto max-w-xl px-6 bg-white p-8 rounded-lg shadow-md">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6 text-center">
           Formulaire Santé 🩺
