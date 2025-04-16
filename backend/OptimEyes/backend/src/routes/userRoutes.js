@@ -1,41 +1,45 @@
+// backend/src/routes/userRoutes.js
 import express from 'express';
-import { 
-    getAllUsers, 
-    registerUser, 
-    loginUser, 
-    getUserProfile, 
-    getUserById, 
-    promoteToAdmin 
+import {
+  getAllUsers,
+  registerUser,
+  loginUser,
+  getUserProfile,
+  getUserById,
+  promoteToAdmin
 } from '../controllers/userController.js';
 
-import { protect, isAdmin } from '../middleware/authMiddleware.js'; // ✅ regroupe tout ici
-
+import { protect, isAdmin } from '../middleware/authMiddleware.js';
+import User from '../models/User.js';
 
 const router = express.Router();
 
-// ✅ Route pour récupérer tous les utilisateurs (Admin seulement à l'avenir)
-router.get('/', getAllUsers);
-
-// ✅ Route d'inscription
+// 🔐 Authentification & Compte
 router.post('/register', registerUser);
-router.post('/signup', registerUser); // ✅ alias
-
-// ✅ Route de connexion
+router.post('/signup', registerUser); // alias
 router.post('/login', loginUser);
-
-// ✅ Route pour récupérer le profil utilisateur (protégée)
 router.get('/profile', protect, getUserProfile);
 
-// ✅ Route pour récupérer un utilisateur par ID
-router.get('/:id', protect, getUserById); // 🔥 Protégée également
+// 👤 Utilisateur par ID
+router.get('/:id', protect, getUserById);
 
-// ✅ Route temporaire pour promouvoir un utilisateur en admin
-router.put('/promote/:id', promoteToAdmin);
-
-router.post("/make-admin", promoteToAdmin);
-
-// ✅ Route pour récupérer tous les utilisateurs (admin uniquement)
+// 🛡️ Admin : tous les users
 router.get('/', protect, isAdmin, getAllUsers);
 
+// 🚀 Promotion temporaire
+router.put('/promote/:id', promoteToAdmin);
+router.post('/make-admin', promoteToAdmin);
+
+// 🧪 Route de debug temporaire pour vérifier isAdmin
+router.get('/check-admin/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    res.json(user);
+  } catch (err) {
+    console.error('Erreur check-admin:', err);
+    res.status(500).json({ message: 'Erreur lors de la vérification admin' });
+  }
+});
 
 export default router;
