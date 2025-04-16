@@ -17,6 +17,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ScrollToTop from "./components/ScrollToTop";
 import { AuthProvider } from "./context/AuthContext";
 import DiagnosticPage from "./pages/DiagnosticPage";
+import FormulaireSante from "./pages/FormulaireSante";
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/diagnostic" element={<DiagnosticPage />} />
+            <Route path="/formulaire-sante" element={<FormulaireSante />} />
           </Routes>
           <ChatbotButton />
           <Footer />
