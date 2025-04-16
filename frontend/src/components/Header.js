@@ -133,6 +133,7 @@ const Header = () => {
                       <p className="px-4 py-2 text-gray-800">
                         Bienvenue, {user.firstname || user.name} 👋
                       </p>
+
                       <Link
                         to="/account"
                         className="flex items-center gap-2 px-4 py-2 text-gray-800 hover:bg-gray-200"
@@ -140,6 +141,15 @@ const Header = () => {
                         <FiUser className="p-1 border border-black rounded-full" />
                         Mon compte
                       </Link>
+
+                      {user.isAdmin && (
+                        <Link
+                          to="/admin"
+                          className="flex items-center gap-2 px-4 py-2 text-[#0077B6] font-medium hover:bg-gray-100"
+                        >
+                          🛠️ Admin Dashboard
+                        </Link>
+                      )}
 
                       <button
                         onClick={handleLogout}
