@@ -15,25 +15,34 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (token) => {
-    try {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/users/profile`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      return data;
-    } catch (error) {
-      console.error("❌ Erreur de récupération du profil :", error);
-      return null;
-    }
+    const { data } = await axios.get(
+      `${process.env.REACT_APP_API_URL}/api/users/profile`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return data;
   };
+
+  useEffect(() => {
+    const currentUser = getCurrentUser();
+    if (currentUser?.token) {
+      fetchProfile(currentUser.token).then((profile) => {
+        const fullUser = {
+          ...currentUser,
+          isAdmin: profile?.isAdmin || false,
+        };
+        localStorage.setItem("user", JSON.stringify(fullUser));
+        setUser(fullUser);
+        setLoading(false);
+      });
+    } else {
+      setLoading(false);
+    }
+  }, []);
 
   const login = async (credentials) => {
     const data = await apiLoginUser(credentials);
     const profile = await fetchProfile(data.token);
-
-    const fullUser = { ...data, isAdmin: profile?.isAdmin || false };
+    const fullUser = { ...data, isAdmin: profile.isAdmin || false };
     localStorage.setItem("user", JSON.stringify(fullUser));
     setUser(fullUser);
     return fullUser;
@@ -42,8 +51,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (credentials) => {
     const data = await apiRegisterUser(credentials);
     const profile = await fetchProfile(data.token);
-
-    const fullUser = { ...data, isAdmin: profile?.isAdmin || false };
+    const fullUser = { ...data, isAdmin: profile.isAdmin || false };
     localStorage.setItem("user", JSON.stringify(fullUser));
     setUser(fullUser);
     return fullUser;
@@ -54,24 +62,17 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  useEffect(() => {
-    const currentUser = getCurrentUser();
-    if (currentUser) setUser(currentUser);
-    if (currentUser?.token) {
-      fetchProfile(currentUser.token).then(profile => {
-        const fullUser = { ...currentUser, isAdmin: profile?.isAdmin || false };
-        setUser(fullUser);
-        localStorage.setItem("user", JSON.stringify(fullUser));
-      });
-    }
-    
-    setLoading(false);
-  }, []);
+  const value = {
+    user,
+    isAuthenticated: !!user,
+    login,
+    register,
+    logout,
+    loading,
+  };
 
   return (
-    <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, login, register, logout, loading }}
-    >
+    <AuthContext.Provider value={value}>
       {!loading && children}
     </AuthContext.Provider>
   );
