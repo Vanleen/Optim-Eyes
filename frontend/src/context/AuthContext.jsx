@@ -32,10 +32,16 @@ export const AuthProvider = ({ children }) => {
     const data = await apiLoginUser(credentials);
     const profile = await fetchProfile(data.token);
 
-    const fullUser = { ...data, isAdmin: profile.isAdmin };
+    const fullUser = {
+      _id: profile._id,
+      name: profile.name,
+      email: profile.email,
+      isAdmin: profile.isAdmin,
+      token: data.token,
+    };
+
     localStorage.setItem("user", JSON.stringify(fullUser));
     setUser(fullUser);
-
     return fullUser;
   };
 
@@ -43,10 +49,16 @@ export const AuthProvider = ({ children }) => {
     const data = await apiRegisterUser(credentials);
     const profile = await fetchProfile(data.token);
 
-    const fullUser = { ...data, isAdmin: profile.isAdmin };
+    const fullUser = {
+      _id: profile._id,
+      name: profile.name,
+      email: profile.email,
+      isAdmin: profile.isAdmin,
+      token: data.token,
+    };
+
     localStorage.setItem("user", JSON.stringify(fullUser));
     setUser(fullUser);
-
     return fullUser;
   };
 
