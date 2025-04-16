@@ -73,21 +73,22 @@ export const loginUser = asyncHandler(async (req, res) => {
 // ✅ Récupération du profil utilisateur (protégé par authentification)
 export const getUserProfile = asyncHandler(async (req, res) => {
     console.log("📌 Requête reçue: GET /api/users/profile");
-
+  
     const user = await User.findById(req.user._id);
-
+  
     if (user) {
-        res.json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            isAdmin: user.isAdmin, // ✅ on renvoie bien le flag ici
-        });    
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin, // 🔥 C'est CE champ qui manque actuellement !
+      });
     } else {
-        res.status(404);
-        throw new Error("Utilisateur non trouvé.");
+      res.status(404);
+      throw new Error("Utilisateur non trouvé.");
     }
-});
+  });
+  
 
 // ✅ Récupérer un utilisateur par ID
 export const getUserById = asyncHandler(async (req, res) => {
