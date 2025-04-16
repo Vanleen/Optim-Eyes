@@ -6,6 +6,7 @@ import {
   logoutUser as apiLogoutUser,
   getCurrentUser,
 } from "../api/authApi";
+import axios from "axios";
 
 const AuthContext = createContext();
 
@@ -19,24 +20,34 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  const fetchProfile = async (token) => {
+    const { data } = await axios.get(
+      `${process.env.REACT_APP_API_URL}/api/users/profile`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return data;
+  };
+
   const login = async (credentials) => {
     const data = await apiLoginUser(credentials);
-    const enhancedUser = {
-      ...data,
-      isAdmin: data.isAdmin || false, // ✅ Ajout isAdmin
-    };
-    setUser(enhancedUser);
-    return enhancedUser;
+    const profile = await fetchProfile(data.token);
+
+    const fullUser = { ...data, isAdmin: profile.isAdmin };
+    localStorage.setItem("user", JSON.stringify(fullUser));
+    setUser(fullUser);
+
+    return fullUser;
   };
 
   const register = async (credentials) => {
     const data = await apiRegisterUser(credentials);
-    const enhancedUser = {
-      ...data,
-      isAdmin: data.isAdmin || false, // ✅ Ajout isAdmin
-    };
-    setUser(enhancedUser);
-    return enhancedUser;
+    const profile = await fetchProfile(data.token);
+
+    const fullUser = { ...data, isAdmin: profile.isAdmin };
+    localStorage.setItem("user", JSON.stringify(fullUser));
+    setUser(fullUser);
+
+    return fullUser;
   };
 
   const logout = () => {
