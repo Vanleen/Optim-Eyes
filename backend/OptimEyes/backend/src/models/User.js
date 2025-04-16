@@ -3,12 +3,14 @@ import bcrypt from 'bcryptjs';
 
 const userSchema = mongoose.Schema(
     {
-        name: { type: String, required: true },
-        email: { type: String, required: true, unique: true },
-        password: { type: String, required: true }
+      name: { type: String, required: true },
+      email: { type: String, required: true, unique: true },
+      password: { type: String, required: true },
+      isAdmin: { type: Boolean, default: false } // ✅
     },
     { timestamps: true }
-);
+  );
+  
 
 // ✅ Comparer le mot de passe entré avec celui stocké (hashé)
 userSchema.methods.matchPassword = async function (enteredPassword) {

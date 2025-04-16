@@ -96,3 +96,27 @@ export const getUserById = asyncHandler(async (req, res) => {
         res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
 });
+
+// ✅ Promote un utilisateur en admin
+export const promoteToAdmin = async (req, res) => {
+    try {
+      const id = req.params.id || req.body.id;
+      console.log("🎯 ID reçu :", id);
+  
+      const user = await User.findById(id);
+  
+      if (!user) {
+        return res.status(404).json({ message: "Utilisateur non trouvé" });
+      }
+  
+      user.isAdmin = true;
+      await user.save();
+  
+      res.status(200).json({ message: "✅ Utilisateur promu admin avec succès", user });
+    } catch (err) {
+      console.error("❌ Erreur promoteToAdmin :", err);
+      res.status(500).json({ message: "Erreur serveur" });
+    }
+  };
+  
+  
