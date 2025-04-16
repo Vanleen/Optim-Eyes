@@ -127,7 +127,7 @@ const Header = () => {
             <div className="hidden md:flex gap-4 text-xl text-black items-center">
               <div className="relative group">
                 <FiUser className="cursor-pointer hover:text-blue-600" />
-                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-1000">
+                <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-1000">
                   {user ? (
                     <>
                       <p className="px-4 py-2 text-gray-800">
