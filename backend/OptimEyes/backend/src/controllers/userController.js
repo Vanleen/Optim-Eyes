@@ -36,8 +36,9 @@ export const registerUser = asyncHandler(async (req, res) => {
             _id: user._id, 
             name: user.name, 
             email: user.email, 
-            token: generateToken(user._id) // ✅ Génération du JWT
-        });
+            isAdmin: user.isAdmin, // ✅ Ajout ici aussi
+            token: generateToken(user._id)
+          });          
     } else {
         res.status(400);
         throw new Error("❌ Données invalides.");
