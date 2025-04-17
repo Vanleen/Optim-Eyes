@@ -77,7 +77,7 @@ const AdminDashboard = () => {
               title="Power BI Dashboard"
               width="100%"
               height="100%"
-              src="https://app.powerbi.com/links/VUdv_C97GV?ctid=901cb4ca-b862-4029-9306-e5cd0f6d9f86&pbi_source=linkShare"
+              src="https://app.powerbi.com/groups/me/reports/f02dcdc3-1f97-4270-9d2e-9b4fb69ca829?ctid=901cb4ca-b862-4029-9306-e5cd0f6d9f86&pbi_source=linkShare"
               frameBorder="0"
               allowFullScreen
             ></iframe>
