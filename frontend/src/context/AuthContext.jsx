@@ -4,7 +4,6 @@ import {
   loginUser as apiLoginUser,
   registerUser as apiRegisterUser,
   logoutUser as apiLogoutUser,
-  getCurrentUser,
 } from "../api/authApi";
 import axios from "axios";
 
@@ -19,7 +18,9 @@ export const AuthProvider = ({ children }) => {
     try {
       const stored = localStorage.getItem("user");
       if (stored) {
-        setUser(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        console.log("🕵️‍♀️ Chargé depuis localStorage :", parsed);
+        setUser(parsed);
       }
     } catch (err) {
       console.error("Failed parsing user from localStorage:", err);
@@ -32,44 +33,56 @@ export const AuthProvider = ({ children }) => {
   // Synchronise localStorage à chaque modification de user
   useEffect(() => {
     if (user) {
+      console.log("🕵️‍♀️ Enregistrement dans localStorage :", user);
       localStorage.setItem("user", JSON.stringify(user));
     } else {
       localStorage.removeItem("user");
     }
   }, [user]);
 
+  // Base URL configurée via Vite env var (préfixe VITE_)
+  const API_URL = import.meta.env.VITE_API_URL || "";
+
   const fetchProfile = async (token) => {
-    const { data } = await axios.get(
-      `${process.env.REACT_APP_API_URL || ''}/api/users/profile`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    return data;
+    try {
+      const { data } = await axios.get(
+        `${API_URL}/api/users/profile`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      console.log("🕵️‍♀️ fetchProfile retour :", data);
+      return data;
+    } catch (err) {
+      console.error("Erreur fetchProfile :", err);
+      return {};
+    }
   };
 
   const login = async (credentials) => {
-    // 1) Appel de l'API login
+    console.log("🕵️‍♀️ login credentials :", credentials);
     const response = await apiLoginUser(credentials);
-    // Si apiLoginUser renvoie un AxiosResponse, récupérer .data, sinon prendre directement
     const loginData = response.data ?? response;
+    console.log("🕵️‍♀️ loginData :", loginData);
 
-    // 2) Si la réponse contient déjà isAdmin, on l'utilise directement
     let fullUser = loginData;
-    // Sinon, on va chercher le profil complet
     if (loginData.isAdmin === undefined) {
       const profile = await fetchProfile(loginData.token);
       fullUser = { ...loginData, ...profile };
     }
+    console.log("🕵️‍♀️ fullUser :", fullUser);
 
-    // 3) Mise à jour du contexte (et localStorage via l'effet)
     setUser(fullUser);
     return fullUser;
   };
 
   const register = async (credentials) => {
+    console.log("🕵️‍♀️ register credentials :", credentials);
     const response = await apiRegisterUser(credentials);
     const regData = response.data ?? response;
+    console.log("🕵️‍♀️ regData :", regData);
     const profile = await fetchProfile(regData.token);
     const fullUser = { ...regData, ...profile };
+    console.log("🕵️‍♀️ fullUser register :", fullUser);
+
     setUser(fullUser);
     return fullUser;
   };
