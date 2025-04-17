@@ -5,7 +5,7 @@ import {
   registerUser as apiRegisterUser,
   logoutUser as apiLogoutUser,
   getCurrentUser,
-} from "../api/auth";
+} from "../api/authApi";
 
 const AuthContext = createContext();
 

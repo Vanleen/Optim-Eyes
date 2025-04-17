@@ -18,7 +18,6 @@ import { useNavigate } from "react-router-dom";
 const Header = () => {
   const { user, logout } = useAuth();
   console.log("🕵️‍♀️ User connecté :", user);
-
   const navigate = useNavigate(); // ✅ pour rediriger après logout
 
   const [cartCount, setCartCount] = useState(0);
