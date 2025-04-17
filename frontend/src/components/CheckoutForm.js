@@ -3,6 +3,11 @@ import React, { useState } from 'react';
 import { loadStripe }     from '@stripe/stripe-js';
 import { createStripeCheckoutSession } from '../api/paymentApi';
 
+console.log("▶ ENV FRONTEND 🔑", {
+  apiUrl:    process.env.REACT_APP_API_URL,
+  stripeKey: process.env.REACT_APP_STRIPE_PUBLIC_KEY,
+});
+
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
 const CheckoutForm = () => {

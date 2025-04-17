@@ -1,6 +1,8 @@
 // frontend/src/api/paymentApi.js
 import axios from 'axios';
 
+console.log("▶ paymentApi utilisant API_URL =", process.env.REACT_APP_API_URL);
+
 const API_URL = process.env.REACT_APP_API_URL;
 console.log("→ paymentApi using API_URL =", API_URL);
 
