@@ -115,9 +115,9 @@ const DiagnosticPage = () => {
         {result && (
           <div className="mt-8 bg-gray-50 p-4 rounded shadow text-left">
             <h3 className="font-bold text-lg mb-2">Résultat :</h3>
-            <pre className="whitespace-pre-wrap text-sm text-gray-800">
-              {JSON.stringify(result, null, 2)}
-            </pre>
+            <p className="text-sm text-gray-800 whitespace-pre-line">
+              {result.diagnostic || result.message}
+            </p>
           </div>
         )}
       </div>

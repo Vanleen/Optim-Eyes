@@ -1,83 +1,80 @@
+// src/context/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   loginUser as apiLoginUser,
   registerUser as apiRegisterUser,
   logoutUser as apiLogoutUser,
+  getCurrentUser,
 } from "../api/authApi";
+import axios from "axios";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); // ✅ Pour rediriger
 
-  // 1️⃣ Lecture unique du user stocké
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) {
-      try {
-        setUser(JSON.parse(stored));
-      } catch {
-        console.error("User JSON invalide, on purge");
-        localStorage.removeItem("user");
-      }
-    }
+    const currentUser = getCurrentUser();
+    if (currentUser) setUser(currentUser);
     setLoading(false);
   }, []);
 
-  // 2️⃣ Synchro du localStorage à chaque modification de `user`
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("user");
-    }
-  }, [user]);
+  const fetchProfile = async (token) => {
+    const { data } = await axios.get(
+      `${process.env.REACT_APP_API_URL}/api/users/profile`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return data;
+  };
 
   const login = async (credentials) => {
-    const resp = await apiLoginUser(credentials);
-    // gère à la fois axios response ou retour direct
-    const loginData = resp.data ?? resp;
-    console.log("🕵️‍♀️ loginData :", loginData);
-
-    setUser(loginData);
-    return loginData;
+    const data = await apiLoginUser(credentials);
+    const profile = await fetchProfile(data.token);
+    const fullUser = { ...data, ...profile };
+    localStorage.setItem("user", JSON.stringify(fullUser));
+    setUser(fullUser);
+    return fullUser;
   };
 
   const register = async (credentials) => {
-    const resp = await apiRegisterUser(credentials);
-    const regData = resp.data ?? resp;
-    console.log("🔐 registerData :", regData);
-
-    setUser(regData);
-    return regData;
+    const data = await apiRegisterUser(credentials);
+    const profile = await fetchProfile(data.token);
+    const fullUser = { ...data, ...profile };
+    localStorage.setItem("user", JSON.stringify(fullUser));
+    setUser(fullUser);
+    return fullUser;
   };
 
   const logout = () => {
     apiLogoutUser();
     setUser(null);
+    navigate("/"); // ✅ Redirection page d'accueil après logout
+  };
+
+  const value = {
+    user,
+    isAuthenticated: !!user,
+    login,
+    register,
+    logout,
+    loading,
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        login,
-        register,
-        logout,
-        loading,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {!loading && children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
-  return ctx;
+  const context = useContext(AuthContext);
+  if (!context)
+    throw new Error("useAuth must be used within an AuthProvider");
+  return context;
 };
