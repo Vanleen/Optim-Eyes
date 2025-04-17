@@ -69,6 +69,20 @@ const AdminDashboard = () => {
             <p className="mt-2 text-gray-600">Formulaires santé</p>
           </div>
         </div>
+
+        <div className="mt-16">
+          <h2 className="text-xl font-semibold mb-4 text-center text-gray-700">📊 Statistiques Power BI</h2>
+          <div className="w-full h-[600px] border rounded-lg overflow-hidden shadow-md">
+            <iframe
+              title="Power BI Dashboard"
+              width="100%"
+              height="100%"
+              src="https://app.powerbi.com/links/VUdv_C97GV?ctid=901cb4ca-b862-4029-9306-e5cd0f6d9f86&pbi_source=linkShare"
+              frameBorder="0"
+              allowFullScreen
+            ></iframe>
+          </div>
+        </div>
       </div>
     </section>
   );
