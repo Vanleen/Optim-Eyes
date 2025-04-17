@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
         setUser(JSON.parse(stored));
       }
     } catch (err) {
-      console.error("Failed to parse stored user:", err);
+      console.error("Failed parsing user from localStorage:", err);
       localStorage.removeItem("user");
     } finally {
       setLoading(false);
@@ -38,7 +38,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  // Récupère le profil complet (avec isAdmin) si nécessaire
   const fetchProfile = async (token) => {
     const { data } = await axios.get(
       `${process.env.REACT_APP_API_URL || ''}/api/users/profile`,
@@ -48,24 +47,27 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (credentials) => {
-    // 1) Login
-    const loginData = await apiLoginUser(credentials);
+    // 1) Appel de l'API login
+    const response = await apiLoginUser(credentials);
+    // Si apiLoginUser renvoie un AxiosResponse, récupérer .data, sinon prendre directement
+    const loginData = response.data ?? response;
 
-    // 2) Détermine si on a déjà isAdmin dans la réponse
-    let fullUser = { ...loginData };
+    // 2) Si la réponse contient déjà isAdmin, on l'utilise directement
+    let fullUser = loginData;
+    // Sinon, on va chercher le profil complet
     if (loginData.isAdmin === undefined) {
-      // Si non, on récupère le profil
       const profile = await fetchProfile(loginData.token);
       fullUser = { ...loginData, ...profile };
     }
 
-    // 3) Met à jour le contexte (et localStorage via l'effet)
+    // 3) Mise à jour du contexte (et localStorage via l'effet)
     setUser(fullUser);
     return fullUser;
   };
 
   const register = async (credentials) => {
-    const regData = await apiRegisterUser(credentials);
+    const response = await apiRegisterUser(credentials);
+    const regData = response.data ?? response;
     const profile = await fetchProfile(regData.token);
     const fullUser = { ...regData, ...profile };
     setUser(fullUser);
