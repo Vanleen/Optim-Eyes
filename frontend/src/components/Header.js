@@ -13,11 +13,13 @@ import {
 import { FaInstagram, FaTwitter, FaPinterest, FaTiktok } from "react-icons/fa";
 import logo from "../assets/images/logo.svg";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const { user, logout } = useAuth();
   console.log("🕵️‍♀️ User connecté :", user);
 
+  const navigate = useNavigate(); // ✅ pour rediriger après logout
 
   const [cartCount, setCartCount] = useState(0);
   const [favorites, setFavorites] = useState(
@@ -30,7 +32,10 @@ const Header = () => {
   const [showSearch, setShowSearch] = useState(true);
   const [showScrollButton, setShowScrollButton] = useState(false);
 
-  const handleLogout = () => logout();
+  const handleLogout = () => {
+    logout();
+    navigate("/"); // ✅ redirection vers l'accueil
+  };  
   useEffect(() => {
     const updateCartCount = () => {
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
