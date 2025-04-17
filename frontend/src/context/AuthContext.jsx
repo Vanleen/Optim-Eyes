@@ -14,38 +14,43 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ✅ Lecture unique au chargement
+  useEffect(() => {
+    const storedUser = getCurrentUser();
+    if (storedUser) setUser(storedUser);
+    setLoading(false);
+  }, []);
+
+  // ✅ Mise à jour du localStorage à chaque changement de user
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("user");
+    }
+  }, [user]);
+
   const fetchProfile = async (token) => {
     const { data } = await axios.get(
       `${process.env.REACT_APP_API_URL}/api/users/profile`,
-      { headers: { Authorization: `Bearer ${token}` } }
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
     return data;
   };
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const cachedUser = getCurrentUser();
-      if (cachedUser && cachedUser.token) {
-        try {
-          const profile = await fetchProfile(cachedUser.token);
-          const fullUser = { ...cachedUser, isAdmin: profile.isAdmin };
-          localStorage.setItem("user", JSON.stringify(fullUser));
-          setUser(fullUser);
-        } catch (e) {
-          console.error("❌ Erreur chargement profil :", e);
-          apiLogoutUser();
-        }
-      }
-      setLoading(false);
-    };
-    loadUser();
-  }, []);
-
   const login = async (credentials) => {
-    const data = await apiLoginUser(credentials);
-    const profile = await fetchProfile(data.token);
-    const fullUser = { ...data, isAdmin: profile.isAdmin };
-    localStorage.setItem("user", JSON.stringify(fullUser));
+    const data = await apiLoginUser(credentials); // token + email + name
+    const profile = await fetchProfile(data.token); // profile.isAdmin
+
+    const fullUser = {
+      ...data,
+      ...profile, // écrase proprement, priorise isAdmin correct
+    };
+
     setUser(fullUser);
     return fullUser;
   };
@@ -53,8 +58,12 @@ export const AuthProvider = ({ children }) => {
   const register = async (credentials) => {
     const data = await apiRegisterUser(credentials);
     const profile = await fetchProfile(data.token);
-    const fullUser = { ...data, isAdmin: profile.isAdmin };
-    localStorage.setItem("user", JSON.stringify(fullUser));
+
+    const fullUser = {
+      ...data,
+      ...profile,
+    };
+
     setUser(fullUser);
     return fullUser;
   };
@@ -64,17 +73,17 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const value = {
+    user,
+    isAuthenticated: !!user,
+    login,
+    register,
+    logout,
+    loading,
+  };
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        login,
-        register,
-        logout,
-        loading,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {!loading && children}
     </AuthContext.Provider>
   );
