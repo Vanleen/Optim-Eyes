@@ -1,15 +1,20 @@
+// backend/routes/paymentRoutes.js
 import express from 'express';
-import { payWithStripe, payWithPayPal, confirmPayment } from '../controllers/paymentController.js';
+import {
+  payWithStripe,
+  payWithPayPal,
+  confirmPayment
+} from '../controllers/paymentController.js';
 
 const router = express.Router();
 
-// Paiement Stripe
+// POST /api/payments/stripe
 router.post('/stripe', payWithStripe);
 
-// Paiement PayPal
+// POST /api/payments/paypal
 router.post('/paypal', payWithPayPal);
 
-// Confirmer un paiement et mettre à jour la commande
+// PUT  /api/payments/confirm
 router.put('/confirm', confirmPayment);
 
 export default router;

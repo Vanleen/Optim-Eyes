@@ -1,56 +1,74 @@
-import { useState } from "react";
+// frontend/src/components/CheckoutForm.jsx
+import React, { useState } from 'react';
+import { loadStripe }     from '@stripe/stripe-js';
+import { createStripeCheckoutSession } from '../api/paymentApi';
 
-const CheckoutForm = ({ cart, totalPrice }) => {
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
+
+const CheckoutForm = () => {
+  // 📦 Panier depuis localStorage
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  // 📝 Infos de livraison
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
+    name:    "",
+    email:   "",
     address: "",
-    country: "France",
-    paymentMethod: "stripe",
+    country: "France"
   });
 
-  const handleChange = (e) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState("");
+
+  const handleChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  // Calcul du total € 
+  const total = cart
+    .reduce((sum, p) => sum + p.price * (p.quantity || 1), 0)
+    .toFixed(2);
+    console.log("🔔 About to call handleCheckout with cart:", cart);
+
+  const handleCheckout = async (e) => {
     e.preventDefault();
-    console.log("📢 Formulaire soumis :", formData);
-    alert("Paiement en cours...");
-  };
-
-  const handleOrderSubmit = () => {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    if (cart.length === 0) {
+    setError("");
+    if (!cart.length) {
       alert("Votre panier est vide !");
       return;
     }
+    setLoading(true);
 
-    const newOrder = {
-      id: Date.now(),
-      products: cart,
-      total: cart
-        .reduce((total, product) => total + product.price, 0)
-        .toFixed(2),
-      date: new Date().toLocaleDateString(),
-    };
+    // Prépare les items pour Stripe
+    const items = cart.map(item => ({
+      name:     item.name,
+      price:    item.price,
+      quantity: item.quantity || 1,
+    }));
 
-    localStorage.setItem("order", JSON.stringify(newOrder));
-    localStorage.removeItem("cart"); // On vide le panier après validation
+    try {
+      // 1) création de la session côté backend
+      const { sessionId } = await createStripeCheckoutSession(items);
 
-    window.location.href = "/confirmation"; // Redirection vers la page confirmation
+      // 2) redirection vers Stripe Checkout
+      const stripe = await stripePromise;
+      const { error } = await stripe.redirectToCheckout({ sessionId });
+      if (error) throw error;
+    } catch (err) {
+      console.error("Stripe Error:", err);
+      setError(err.message || "Erreur lors du paiement");
+      setLoading(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4">Informations de paiement</h2>
+    <form onSubmit={handleCheckout} className="bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4">Informations de livraison</h2>
 
-      {/* 🔹 Nom */}
+      {/* Nom */}
       <div className="mb-4">
-        <label className="block text-gray-700">Nom complet</label>
+        <label className="block">Nom complet</label>
         <input
-          type="text"
           name="name"
           value={formData.name}
           onChange={handleChange}
@@ -59,9 +77,9 @@ const CheckoutForm = ({ cart, totalPrice }) => {
         />
       </div>
 
-      {/* 🔹 Email */}
+      {/* Email */}
       <div className="mb-4">
-        <label className="block text-gray-700">Email</label>
+        <label className="block">Email</label>
         <input
           type="email"
           name="email"
@@ -72,11 +90,10 @@ const CheckoutForm = ({ cart, totalPrice }) => {
         />
       </div>
 
-      {/* 🔹 Adresse */}
+      {/* Adresse */}
       <div className="mb-4">
-        <label className="block text-gray-700">Adresse de livraison</label>
+        <label className="block">Adresse de livraison</label>
         <input
-          type="text"
           name="address"
           value={formData.address}
           onChange={handleChange}
@@ -85,43 +102,46 @@ const CheckoutForm = ({ cart, totalPrice }) => {
         />
       </div>
 
-      {/* 🔹 Pays */}
+      {/* Pays */}
       <div className="mb-4">
-        <label className="block text-gray-700">Pays</label>
+        <label className="block">Pays</label>
         <select
           name="country"
           value={formData.country}
           onChange={handleChange}
           className="w-full px-4 py-2 border rounded-lg"
         >
-          <option value="France">France</option>
-          <option value="Belgique">Belgique</option>
-          <option value="Suisse">Suisse</option>
-          <option value="Luxembourg">Luxembourg</option>
+          <option>France</option>
+          <option>Belgique</option>
+          <option>Suisse</option>
+          <option>Luxembourg</option>
         </select>
       </div>
 
-      {/* 🔹 Méthode de paiement */}
-      <div className="mb-4">
-        <label className="block text-gray-700">Méthode de paiement</label>
-        <select
-          name="paymentMethod"
-          value={formData.paymentMethod}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg"
-        >
-          <option value="stripe">💳 Carte Bancaire (Stripe)</option>
-          <option value="paypal">🅿️ PayPal</option>
-        </select>
+      {/* Récap panier */}
+      <h2 className="text-xl font-semibold mb-4 mt-8">Votre Panier</h2>
+      <ul className="mb-4">
+        {cart.map(p => (
+          <li key={p._id} className="flex justify-between py-2 border-b">
+            <span>{p.name} × {p.quantity||1}</span>
+            <span>{(p.price * (p.quantity||1)).toFixed(2)} €</span>
+          </li>
+        ))}
+      </ul>
+      <div className="text-right font-bold mb-6">
+        Total : {total} €
       </div>
 
-      {/* 🔹 Bouton de paiement */}
+      {/* Erreur */}
+      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
+      {/* Bouton Stripe Checkout */}
       <button
-        type="button"
-        onClick={handleOrderSubmit}
-        className="w-full bg-[#ffaf50] text-white font-semibold py-3 rounded-md hover:bg-[#e69940] transition"
+        type="submit"
+        disabled={loading}
+        className="w-full bg-[#ffaf50] text-white py-3 rounded-md hover:bg-[#e69940] transition"
       >
-        Confirmer la commande
+        {loading ? "Chargement…" : `Payer ${total} €`}
       </button>
     </form>
   );
