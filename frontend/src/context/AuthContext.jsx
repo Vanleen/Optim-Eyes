@@ -40,8 +40,8 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  // Base URL configurée via Vite env var (préfixe VITE_)
-  const API_URL = import.meta.env.VITE_API_URL || "";
+  // Utilise la variable d'environnement existante sans rien toucher
+  const API_URL = process.env.REACT_APP_API_URL || "";
 
   const fetchProfile = async (token) => {
     try {
