@@ -54,5 +54,7 @@ export const getCurrentUser = () => {
 export const logoutUser = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
-  window.location.reload(); // 🔄
+  // ❌ Supprime ce reload sauvage !
+  // window.location.reload(); ❌
 };
+
