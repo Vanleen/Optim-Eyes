@@ -1,5 +1,5 @@
 // frontend/src/pages/DiagnosticPage.jsx
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -17,11 +17,12 @@ const DiagnosticPage = () => {
 
   const API_URL = process.env.REACT_APP_API_URL;
 
-  // Si pas de token, redirige vers login
-  if (!token) {
-    navigate("/login");
-    return null;
-  }
+  // Redirection vers /login si pas de token
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    }
+  }, [token, navigate]);
 
   const handleFileSelect = () => {
     fileInputRef.current?.click();
@@ -50,7 +51,7 @@ const DiagnosticPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!image) return;
+    if (!image || !token) return;
 
     const formData = new FormData();
     formData.append("image", image);
@@ -70,7 +71,9 @@ const DiagnosticPage = () => {
       setResult(response.data);
     } catch (err) {
       console.error("❌ Erreur diagnostic :", err.response?.data || err);
-      setResult({ message: err.response?.data?.message || "Erreur lors du diagnostic." });
+      setResult({
+        message: err.response?.data?.message || "Erreur lors du diagnostic.",
+      });
     } finally {
       setLoading(false);
     }
