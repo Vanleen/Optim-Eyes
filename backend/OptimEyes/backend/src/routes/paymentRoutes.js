@@ -1,7 +1,17 @@
+// backend/src/routes/paymentRoutes.js
+
 import express from 'express';
-import { payWithStripe, payWithPayPal, confirmPayment } from '../controllers/paymentController.js';
+import {
+  payWithStripe,
+  getCheckoutSession,
+  payWithPayPal,
+  confirmPayment
+} from '../controllers/paymentController.js';
 
 const router = express.Router();
+
+// ➡️ Récupérer une session Stripe par ID
+router.get('/stripe/session/:sessionId', getCheckoutSession);
 
 // Paiement Stripe
 router.post('/stripe', payWithStripe);
