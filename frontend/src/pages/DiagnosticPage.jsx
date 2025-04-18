@@ -2,15 +2,26 @@
 import { useState, useRef } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const DiagnosticPage = () => {
   const { user } = useAuth();
   const token = user?.token;
+  const navigate = useNavigate();
+
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
+
+  const API_URL = process.env.REACT_APP_API_URL;
+
+  // Si pas de token, redirige vers login
+  if (!token) {
+    navigate("/login");
+    return null;
+  }
 
   const handleFileSelect = () => {
     fileInputRef.current?.click();
@@ -47,19 +58,19 @@ const DiagnosticPage = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/ai/diagnosis`,
+        `${API_URL}/api/ai/diagnosis`,
         formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data"
-          }
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
       setResult(response.data);
     } catch (err) {
       console.error("❌ Erreur diagnostic :", err.response?.data || err);
-      setResult({ message: "Erreur lors du diagnostic." });
+      setResult({ message: err.response?.data?.message || "Erreur lors du diagnostic." });
     } finally {
       setLoading(false);
     }
