@@ -22,6 +22,7 @@ import AdminUsers from "./pages/AdminUsers";
 import AdminOrders from "./pages/AdminOrders";
 import AdminForms from "./pages/AdminForms";
 import AdminGlasses from "./pages/AdminGlasses";
+import SuccessPage    from './pages/SuccessPage';
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/forms" element={<AdminForms />} />
             <Route path="/admin/glasses" element={<AdminGlasses />} />
+            <Route path="/success"  element={<SuccessPage />} />
           </Routes>
           <ChatbotButton />
           <Footer />
