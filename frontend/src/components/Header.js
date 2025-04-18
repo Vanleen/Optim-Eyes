@@ -235,7 +235,7 @@ const Header = () => {
             className="text-black text-lg hover:text-blue-600"
             onClick={() => setIsMenuOpen(false)}
           >
-            Trouver vos lunettes idéales
+            Mes Recommandations
           </Link>
           <hr className="border-t-2 border-[#ffaf50] w-4/5 my-4 mx-auto" />
           <Link
