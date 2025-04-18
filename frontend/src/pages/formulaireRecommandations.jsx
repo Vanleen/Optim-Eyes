@@ -12,8 +12,11 @@ export default function FormulaireRecommandations() {
 
   // ── PRÉFÉRENCES ───────────────────────────────
   const [prefs, setPrefs] = useState({
-    budget: '', correction: '', style: '',
-    category: 'optique', gender: 'mixte',
+    budget: '',
+    correction: '',
+    style: '',
+    category: 'optique',
+    gender: 'mixte',
     marquesPreferees: []
   });
   const [prefRecs, setPrefRecs]         = useState([]);
@@ -72,21 +75,26 @@ export default function FormulaireRecommandations() {
     if (!file) return;
     setLoadingAi(true);
     try {
-      // 1) Detect face shape
+      // 1) Detect face shape (avec token)
       const formData = new FormData();
       formData.append('image', file);
       const detectRes = await axios.post(
         `${API_URL}/api/ai/detect-face-shape`,
         formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
+        {
+          headers: {
+            Authorization:    `Bearer ${token}`,
+            'Content-Type':   'multipart/form-data'
+          }
+        }
       );
       const shape = detectRes.data.faceShape;
       setFaceShape(shape);
 
-      // 2) Recos IA
+      // 2) Recos IA en passant bien la forme détectée
       const { data: recs } = await axios.post(
         `${API_URL}/api/ai/recommendations`,
-        { userId: user._id, faceShape, ...prefs },
+        { userId: user._id, faceShape: shape, ...prefs },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setAiRecs(recs);
@@ -113,32 +121,45 @@ export default function FormulaireRecommandations() {
         </h2>
         <form onSubmit={handlePrefsSubmit} className="space-y-4 mb-6">
           <input
-            name="budget" placeholder="Budget (ex : moins de 100€)"
-            value={prefs.budget} onChange={handlePrefChange} required
+            name="budget"
+            placeholder="Budget (ex : moins de 100€)"
+            value={prefs.budget}
+            onChange={handlePrefChange}
+            required
             className="border rounded px-4 py-2 w-full"
           />
           <input
-            name="correction" placeholder="Correction (ex : myopie)"
-            value={prefs.correction} onChange={handlePrefChange} required
+            name="correction"
+            placeholder="Correction (ex : myopie)"
+            value={prefs.correction}
+            onChange={handlePrefChange}
+            required
             className="border rounded px-4 py-2 w-full"
           />
           <input
-            name="style" placeholder="Style (ex : moderne)"
-            value={prefs.style} onChange={handlePrefChange} required
+            name="style"
+            placeholder="Style (ex : moderne)"
+            value={prefs.style}
+            onChange={handlePrefChange}
+            required
             className="border rounded px-4 py-2 w-full"
           />
 
           <select
-            name="category" value={prefs.category}
-            onChange={handlePrefChange} className="border rounded px-4 py-2 w-full"
+            name="category"
+            value={prefs.category}
+            onChange={handlePrefChange}
+            className="border rounded px-4 py-2 w-full"
           >
             <option value="optique">Optique</option>
             <option value="solaire">Solaires</option>
           </select>
 
           <select
-            name="gender" value={prefs.gender}
-            onChange={handlePrefChange} className="border rounded px-4 py-2 w-full"
+            name="gender"
+            value={prefs.gender}
+            onChange={handlePrefChange}
+            className="border rounded px-4 py-2 w-full"
           >
             <option value="mixte">Mixte</option>
             <option value="homme">Homme</option>
@@ -155,7 +176,8 @@ export default function FormulaireRecommandations() {
           />
 
           <button
-            type="submit" disabled={loadingPrefs}
+            type="submit"
+            disabled={loadingPrefs}
             className="w-full bg-[#ffaf50] hover:bg-[#e69940] text-white py-3 rounded transition"
           >
             {loadingPrefs ? 'Chargement…' : 'Voir mes recommandations'}
@@ -178,7 +200,9 @@ export default function FormulaireRecommandations() {
                 />
                 <div>
                   <p className="font-medium">{g.name}</p>
-                  <p className="text-gray-600">{g.brand} — {g.price.toFixed(2)} €</p>
+                  <p className="text-gray-600">
+                    {g.brand} — {g.price.toFixed(2)} €
+                  </p>
                 </div>
               </Link>
             ))}
@@ -191,12 +215,16 @@ export default function FormulaireRecommandations() {
         </h2>
         <form onSubmit={handleAiSubmit} className="space-y-4 mb-6">
           <input
-            type="file" name="image" accept="image/*"
-            onChange={handleAiChange} required
+            type="file"
+            name="image"
+            accept="image/*"
+            onChange={handleAiChange}
+            required
             className="border rounded px-4 py-2 w-full"
           />
           <button
-            type="submit" disabled={loadingAi}
+            type="submit"
+            disabled={loadingAi}
             className="w-full bg-[#ffaf50] hover:bg-[#e69940] text-white py-3 rounded transition"
           >
             {loadingAi ? 'Chargement…' : 'Voir recos IA'}
@@ -223,7 +251,9 @@ export default function FormulaireRecommandations() {
                 />
                 <div>
                   <p className="font-medium">{g.name}</p>
-                  <p className="text-gray-600">{g.brand} — {g.price.toFixed(2)} €</p>
+                  <p className="text-gray-600">
+                    {g.brand} — {g.price.toFixed(2)} €
+                  </p>
                 </div>
               </Link>
             ))}
