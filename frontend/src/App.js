@@ -57,6 +57,7 @@ function App() {
             <Route path="/success"  element={<SuccessPage />} />
             <Route path="/recommendations" element={<FormulaireRecommandations />} />
             <Route path="/mon-compte" element={<MonComptePage />} />
+            <Route path="/account" element={<MonComptePage />} />
           </Routes>
           <ChatbotButton />
           <Footer />

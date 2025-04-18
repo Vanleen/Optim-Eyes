@@ -14,6 +14,7 @@ import paymentRoutes from './routes/paymentRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
 import formRoutes from './routes/formRoutes.js'; // ✅ ES module import
+import recommendationRoutes from './routes/recommendationRoutes.js';
 
 dotenv.config();
 connectDB();
@@ -44,6 +45,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/form', formRoutes); // ✅ à garder ici
+app.use('/api/recommendations', recommendationRoutes);
 
 // Test route
 app.get('/', (req, res) => {
