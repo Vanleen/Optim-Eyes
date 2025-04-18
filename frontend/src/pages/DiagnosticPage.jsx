@@ -1,23 +1,23 @@
 // frontend/src/pages/DiagnosticPage.jsx
 import { useState, useRef } from "react";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 const DiagnosticPage = () => {
+  const { user } = useAuth();
+  const token = user?.token;
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
 
-  const handleFileSelect = () => {
-    fileInputRef.current?.click();
-  };
+  const handleFileSelect = () => fileInputRef.current?.click();
 
   const handleChange = (e) => {
     const file = e.target.files[0];
     setImage(file);
     setResult(null);
-
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => setImagePreview(reader.result);
@@ -44,14 +44,19 @@ const DiagnosticPage = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://optim-eyes.onrender.com/api/ai/diagnosis",
+        `${process.env.REACT_APP_API_URL}/api/ai/diagnosis`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,         // ← on envoie le token ici
+          },
+        }
       );
       setResult(response.data);
     } catch (err) {
-      console.error("❌ Erreur diagnostic :", err);
-      setResult({ message: "Erreur lors du diagnostic." });
+      console.error("❌ Erreur diagnostic :", err.response || err);
+      setResult({ message: err.response?.data?.message || "Erreur lors du diagnostic." });
     } finally {
       setLoading(false);
     }
