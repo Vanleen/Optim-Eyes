@@ -1,3 +1,4 @@
+// frontend/src/pages/AdminDashboard.jsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -42,10 +43,6 @@ const AdminDashboard = () => {
     fetchStats();
   }, []);
 
-  const openDashboardImage = () => {
-    window.open("/images/1Dash.png", "_blank");
-  };
-
   return (
     <section className="pt-40 pb-16 bg-gray-100 min-h-screen">
       <div className="container mx-auto px-6 max-w-4xl">
@@ -53,18 +50,19 @@ const AdminDashboard = () => {
           Tableau de bord admin 📊
         </h1>
 
-        {/* ── Bouton pour afficher l'image dashboard ── */}
+        {/* Bouton externe vers le rapport Power BI */}
         <div className="text-center mb-8">
-          <button
-            onClick={openDashboardImage}
+          <a
+            href="https://app.powerbi.com/links/K4IQOKlDd5?ctid=901cb4ca-b862-4029-9306-e5cd0f6d9f86&pbi_source=linkShare"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-block bg-[#ffaf50] text-white font-semibold py-3 px-6 rounded-md hover:bg-[#e69940] transition"
-            title="Aperçu du rapport Power BI"
           >
-            Aperçu du rapport
-          </button>
+            Accéder au rapport
+          </a>
         </div>
 
-        {/* ── Statistiques clés ── */}
+        {/* Cartes de statistiques */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           <Link
             to="/admin/users"
@@ -97,6 +95,23 @@ const AdminDashboard = () => {
             <p className="text-5xl font-bold text-[#ef476f]">{stats.forms}</p>
             <p className="mt-2 text-gray-600">Formulaires santé</p>
           </Link>
+        </div>
+
+        {/* Intégration du rapport Power BI */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4 text-center text-gray-700">
+            📊 Statistiques Power BI
+          </h2>
+          <div className="w-full h-[600px] border rounded-lg overflow-hidden shadow-md">
+            <iframe
+              title="Power BI Dashboard"
+              width="100%"
+              height="100%"
+              src="https://app.powerbi.com/links/K4IQOKlDd5?ctid=901cb4ca-b862-4029-9306-e5cd0f6d9f86&pbi_source=linkShare"
+              frameBorder="0"
+              allowFullScreen
+            />
+          </div>
         </div>
       </div>
     </section>
