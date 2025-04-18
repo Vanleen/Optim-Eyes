@@ -1,24 +1,30 @@
-import express from 'express';
-import { createOrder, getOrderById, updateOrderStatus, getMyOrders, getAllOrders, deleteOrder } from '../controllers/orderController.js';
+// backend/src/routes/orderRoutes.js
+
+import express           from 'express';
+import {
+  createOrder,
+  getOrderById,
+  updateOrderStatus,
+  getMyOrders,
+  getAllOrders,
+  deleteOrder
+} from '../controllers/orderController.js';
+import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Créer une commande
-router.post('/', createOrder);
+// Routes pour "Mon compte" (utilisateur connecté)
+router.use(protect);
+router.post('/',           createOrder);
+router.get('/myorders',    getMyOrders);
 
-// Obtenir une commande par ID
-router.get('/:id', getOrderById);
+// Routes pour Admin
+router.use(admin);
+router.get('/',            getAllOrders);
+router.delete('/:id',      deleteOrder);
 
-// Mettre à jour une commande après paiement
-router.put('/:id/status', updateOrderStatus);
-
-// Récupérer toutes les commandes (Admin)
-router.get('/', getAllOrders);
-
-// Récupérer les commandes d’un utilisateur
-router.get('/user/:userId', getMyOrders);
-
-// Supprimer une commande par ID
-router.delete('/:id', deleteOrder);
+// Routes mixées (protect appliqué plus haut)
+router.get('/:id',         getOrderById);
+router.put('/:id/status',  updateOrderStatus);
 
 export default router;

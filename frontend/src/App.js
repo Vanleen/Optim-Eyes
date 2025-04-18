@@ -24,6 +24,7 @@ import AdminForms from "./pages/AdminForms";
 import AdminGlasses from "./pages/AdminGlasses";
 import SuccessPage    from './pages/SuccessPage';
 import FormulaireRecommandations from './pages/formulaireRecommandations.jsx';
+import MonComptePage from './pages/MonComptePage.jsx';
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
             <Route path="/admin/glasses" element={<AdminGlasses />} />
             <Route path="/success"  element={<SuccessPage />} />
             <Route path="/recommendations" element={<FormulaireRecommandations />} />
+            <Route path="/mon-compte" element={<MonComptePage />} />
           </Routes>
           <ChatbotButton />
           <Footer />
