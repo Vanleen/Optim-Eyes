@@ -85,7 +85,7 @@ const CoupDeCoeur = () => {
             displayedProducts.map((product) => (
               <Link
                 key={product._id}
-                to={`/produit/${product._id}`}
+                to={`/product/${product._id}`}
                 className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300 relative"
               >
                 <img
