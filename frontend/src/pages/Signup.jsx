@@ -1,18 +1,18 @@
+// frontend/src/pages/Signup.jsx
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // 🔗 Connexion au context
+import { useAuth } from "../context/AuthContext";
 
 const Signup = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [name, setName]         = useState("");
+  const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
-  const { register, loading } = useAuth(); // 🔗 Récupère la méthode register
+  const [error, setError]       = useState("");
+  const { register, loading }   = useAuth();
+  const navigate                = useNavigate();
 
-  const validatePassword = (password) => {
-    return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(password);
-  };
+  const validatePassword = (pwd) =>
+    /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(pwd);
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -29,10 +29,11 @@ const Signup = () => {
     }
 
     try {
-      await register({ name, email, password }); // 🔄 Appel via context
-      navigate("/");
+      await register({ name, email, password });
+      // ← redirection vers recommendations après inscription
+      navigate("/recommendations");
     } catch (err) {
-      setError(err.message || "Une erreur est survenue.");
+      setError(err.response?.data?.message || err.message || "Une erreur est survenue.");
     }
   };
 

@@ -23,6 +23,7 @@ import AdminOrders from "./pages/AdminOrders";
 import AdminForms from "./pages/AdminForms";
 import AdminGlasses from "./pages/AdminGlasses";
 import SuccessPage    from './pages/SuccessPage';
+import FormulaireRecommandations from './pages/formulaireRecommandations.jsx';
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function App() {
             <Route path="/admin/forms" element={<AdminForms />} />
             <Route path="/admin/glasses" element={<AdminGlasses />} />
             <Route path="/success"  element={<SuccessPage />} />
+            <Route path="/recommendations" element={<FormulaireRecommandations />} />
           </Routes>
           <ChatbotButton />
           <Footer />
