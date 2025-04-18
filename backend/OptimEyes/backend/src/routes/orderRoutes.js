@@ -1,6 +1,6 @@
 // backend/src/routes/orderRoutes.js
 
-import express           from 'express';
+import express from 'express';
 import {
   createOrder,
   getOrderById,
@@ -9,23 +9,34 @@ import {
   getAllOrders,
   deleteOrder
 } from '../controllers/orderController.js';
+
 import { protect } from '../middleware/authMiddleware.js';
-import { admin } from '../middleware/adminMiddleware.js';
+import { isAdmin } from '../middleware/adminMiddleware.js';
 
 const router = express.Router();
 
-// Routes pour "Mon compte" (utilisateur connecté)
+// Toutes les routes nécessitent d'être authentifié
 router.use(protect);
-router.post('/',           createOrder);
-router.get('/myorders',    getMyOrders);
 
-// Routes pour Admin
-router.use(admin);
-router.get('/',            getAllOrders);
-router.delete('/:id',      deleteOrder);
+// Créer une commande
+router.post('/', createOrder);
 
-// Routes mixées (protect appliqué plus haut)
-router.get('/:id',         getOrderById);
-router.put('/:id/status',  updateOrderStatus);
+// Récupérer ses propres commandes
+router.get('/myorders', getMyOrders);
+
+// Détail d’une commande
+router.get('/:id', getOrderById);
+
+// Mettre à jour le statut d’une commande
+router.put('/:id/status', updateOrderStatus);
+
+// Les routes suivantes sont réservées aux admins
+router.use(isAdmin);
+
+// Récupérer toutes les commandes (admin)
+router.get('/', getAllOrders);
+
+// Supprimer une commande (admin)
+router.delete('/:id', deleteOrder);
 
 export default router;
