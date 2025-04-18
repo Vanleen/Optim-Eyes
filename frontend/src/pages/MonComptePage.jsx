@@ -1,29 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import axios                              from 'axios';
-import { useAuth }                        from '../context/AuthContext';
-import { Link }                           from 'react-router-dom';
+import axios                           from 'axios';
+import { useAuth }                     from '../context/AuthContext';
+import { Link }                        from 'react-router-dom';
 
 export default function MonComptePage() {
-  const { user, token } = useAuth();
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const token    = user?.token;
+  const API_URL  = process.env.REACT_APP_API_URL;
+  const [orders, setOrders]     = useState([]);
+  const [loading, setLoading]   = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    if (!token) return;
     (async () => {
       try {
         const { data } = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/orders/myorders`,
+          `${API_URL}/api/orders/myorders`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setOrders(data);
       } catch (err) {
-        console.error('Erreur récup mon compte :', err);
+        console.error('Erreur Mon compte :', err.response?.data || err);
       } finally {
         setLoading(false);
       }
     })();
-  }, [user, token]);
+  }, [token]);
 
   if (loading) return <p>Chargement de vos commandes…</p>;
 

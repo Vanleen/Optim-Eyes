@@ -1,30 +1,27 @@
-// frontend/src/pages/formulaireRecommendations.jsx
 import React, { useState } from 'react';
-import axios        from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { useAuth }  from '../context/AuthContext';
+import axios              from 'axios';
+import { useNavigate }    from 'react-router-dom';
+import { useAuth }        from '../context/AuthContext';
 
 export default function RecommendationsPage() {
-  const { user, token } = useAuth();
-  const navigate = useNavigate();
+  const { user }     = useAuth();
+  const token        = user?.token;
+  const navigate     = useNavigate();
+  const API_URL      = process.env.REACT_APP_API_URL;
 
-  // ── ÉTAT FORMULAIRE PRÉFÉRENCES ───────────────────────────────────────────
-  const [prefs, setPrefs] = useState({
-    budget: '',
-    correction: '',
-    style: '',
-    marquesPreferees: []
+  // ── PRÉFÉRENCES ───────────────────────────────────────────
+  const [prefs, setPrefs]         = useState({
+    budget: '', correction: '', style: '', marquesPreferees: []
   });
-  const [prefRecs, setPrefRecs] = useState([]);
+  const [prefRecs, setPrefRecs]   = useState([]);
   const [prefSuccess, setPrefSuccess] = useState(false);
   const [loadingPrefs, setLoadingPrefs] = useState(false);
 
-  // ── ÉTAT FORMULAIRE IA ────────────────────────────────────────────────────
+  // ── IA (LOGIQUE OU IMAGE) ─────────────────────────────────
   const [faceShape, setFaceShape] = useState('');
-  const [aiRecs, setAiRecs] = useState([]);
+  const [aiRecs, setAiRecs]       = useState([]);
   const [loadingAi, setLoadingAi] = useState(false);
 
-  // Gérer la saisie du formulaire préférences
   const handlePrefChange = e => {
     const { name, value } = e.target;
     if (name === 'marquesPreferees') {
@@ -34,21 +31,22 @@ export default function RecommendationsPage() {
     }
   };
 
-  // Soumettre les préférences → POST then GET
   const handlePrefsSubmit = async e => {
     e.preventDefault();
     if (!user) return navigate('/login');
     setLoadingPrefs(true);
     try {
+      // Enregistrer les préférences
       await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/recommendations`,
+        `${API_URL}/api/recommendations`,
         { userId: user._id, ...prefs },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setPrefSuccess(true);
-      // Récupérer tout de suite les recommandations
+
+      // Récupérer les recommandations
       const { data } = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/recommendations/${user._id}`,
+        `${API_URL}/api/recommendations/${user._id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setPrefRecs(data);
@@ -59,24 +57,32 @@ export default function RecommendationsPage() {
     }
   };
 
-  // Soumettre l’image → POST FormData
   const handleAiChange = e => {
     setFaceShape('');
     setAiRecs([]);
-    e.target.files.length && setAiRecs(null);
   };
+
   const handleAiSubmit = async e => {
     e.preventDefault();
+    if (!user) return navigate('/login');
+
     const file = e.target.image.files[0];
     if (!file) return;
+
     setLoadingAi(true);
     try {
       const form = new FormData();
       form.append('image', file);
+
       const { data } = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/ai/recommendations`,
+        `${API_URL}/api/ai/recommendations`,
         form,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
       );
       setFaceShape(data.faceShape);
       setAiRecs(data.recommendations);
@@ -87,19 +93,17 @@ export default function RecommendationsPage() {
     }
   };
 
-  // Helper pour URL d’image
   const fmtImg = url =>
-    url.startsWith('http') ? url : `${process.env.REACT_APP_API_URL}${url}`;
+    url.startsWith('http') ? url : `${API_URL}${url}`;
 
   return (
     <section className="pt-40 pb-16 bg-gray-100 min-h-screen">
       <div className="container mx-auto max-w-xl px-6 bg-white p-8 rounded-lg shadow-md">
-
         <h1 className="text-3xl font-semibold text-gray-800 mb-8 text-center">
           Recommandations de lunettes
         </h1>
 
-        {/* ── FORMULAIRE PRÉFÉRENCES ───────────────────────────────────────── */}
+        {/* Préférences */}
         <h2 className="text-2xl font-semibold text-gray-700 mb-4">
           Basées sur vos préférences
         </h2>
@@ -152,7 +156,7 @@ export default function RecommendationsPage() {
                   src={fmtImg(g.imageUrl)}
                   alt={g.name}
                   className="w-16 h-16 object-cover rounded mr-4"
-                  onError={e => { e.target.onerror=null; e.target.src='/placeholder.png'; }}
+                  onError={e => { e.target.onerror = null; e.target.src = '/placeholder.png'; }}
                 />
                 <div>
                   <p className="font-medium">{g.name}</p>
@@ -166,7 +170,7 @@ export default function RecommendationsPage() {
           </ul>
         )}
 
-        {/* ── FORMULAIRE IA ─────────────────────────────────────────────────── */}
+        {/* IA */}
         <h2 className="text-2xl font-semibold text-gray-700 mb-4">
           Générées par IA (upload de photo)
         </h2>
@@ -199,7 +203,7 @@ export default function RecommendationsPage() {
                   src={fmtImg(g.imageUrl)}
                   alt={g.name}
                   className="w-16 h-16 object-cover rounded mr-4"
-                  onError={e => { e.target.onerror=null; e.target.src='/placeholder.png'; }}
+                  onError={e => { e.target.onerror = null; e.target.src = '/placeholder.png'; }}
                 />
                 <div>
                   <p className="font-medium">{g.name}</p>
@@ -212,7 +216,6 @@ export default function RecommendationsPage() {
             ))}
           </ul>
         )}
-
       </div>
     </section>
   );
