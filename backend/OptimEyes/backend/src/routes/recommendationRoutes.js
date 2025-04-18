@@ -8,19 +8,18 @@ import {
 
 const router = express.Router();
 
-// Toutes les routes ci‑dessous nécessitent un JWT valide
 router.use(protect);
 
-// Enregistrer ou mettre à jour les préférences
-//   POST /api/recommendations
+// Enregistrer / upsert des prefs
+// POST /api/recommendations
 router.post('/', createPreferences);
 
-// Récupérer les recommandations pour l’utilisateur courant
-//   GET  /api/recommendations
+// Récupérer pour l’utilisateur courant
+// GET  /api/recommendations
 router.get('/', getPreferences);
 
-// Récupérer les recommandations pour un user donné
-//   GET  /api/recommendations/:userId
+// (optionnel) Récupérer par userId passé en param
+// GET  /api/recommendations/:userId
 router.get('/:userId', getPreferences);
 
 export default router;
