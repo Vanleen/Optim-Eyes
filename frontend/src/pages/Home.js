@@ -1,7 +1,7 @@
 import HeroSection from "../components/HeroSection";
 import CoupDeCoeur from "../components/CoupDeCoeur";
 import ConsultationDomicile from "../components/ConsultationDomicile";
-import FeatureComingSoon from "../components/FeatureComingSoon"; 
+
 
 const Home = () => {
   return (
@@ -9,7 +9,6 @@ const Home = () => {
       <HeroSection /> {/* ✅ Ajout du Hero en haut */}
       <CoupDeCoeur />
       <ConsultationDomicile />
-      <FeatureComingSoon />
     </div>
   );
 };
