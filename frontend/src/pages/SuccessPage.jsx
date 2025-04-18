@@ -1,7 +1,7 @@
 // frontend/src/pages/SuccessPage.jsx
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, Link }      from 'react-router-dom';
-import axios                          from 'axios';
+import { useSearchParams, Link }           from 'react-router-dom';
+import axios                                from 'axios';
 
 const SuccessPage = () => {
   const [searchParams] = useSearchParams();
@@ -28,6 +28,9 @@ const SuccessPage = () => {
         );
 
         setOrderData({ session, order });
+
+        // 3) Vider le panier une fois la commande récupérée
+        localStorage.removeItem('cart');
       } catch (err) {
         console.error('Erreur sur SuccessPage:', err);
       } finally {
@@ -36,34 +39,82 @@ const SuccessPage = () => {
     })();
   }, [sessionId, API_URL]);
 
-  if (loading) return <p>Chargement…</p>;
-  if (!orderData) return <p>Impossible de récupérer les infos.</p>;
+  if (loading) {
+    return (
+      <section className="pt-40 pb-16 bg-gray-100 min-h-screen">
+        <div className="container mx-auto max-w-xl px-6 bg-white p-8 rounded-lg shadow-md text-center">
+          <p>Chargement…</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (!orderData) {
+    return (
+      <section className="pt-40 pb-16 bg-gray-100 min-h-screen">
+        <div className="container mx-auto max-w-xl px-6 bg-white p-8 rounded-lg shadow-md text-center">
+          <p>Impossible de récupérer les informations de la commande.</p>
+        </div>
+      </section>
+    );
+  }
 
   const { session, order } = orderData;
 
+  // Helper pour formater l'URL de l'image (à adapter selon ton backend)
+  const formatImageUrl = (url) =>
+    url?.startsWith('http') ? url : `${process.env.REACT_APP_API_URL}${url}`;
+
   return (
-    <div className="container mx-auto px-6 py-12 text-center">
-      <h1 className="text-3xl font-semibold text-green-600">Merci pour votre commande !</h1>
-      <p className="mt-4">Votre paiement a été enregistré (ID : {session.payment_intent}).</p>
+    <section className="pt-40 pb-16 bg-gray-100 min-h-screen">
+      <div className="container mx-auto max-w-xl px-6 bg-white p-8 rounded-lg shadow-md">
+        <h1 className="text-3xl font-semibold text-green-600 mb-4 text-center">
+          ✅ Paiement confirmé !
+        </h1>
+        <p className="text-gray-700 text-center mb-6">
+          Votre commande n° <strong>{order._id}</strong> a bien été enregistrée.
+        </p>
 
-      <h2 className="mt-6 text-2xl font-semibold">Récapitulatif</h2>
-      <ul className="mt-4 text-left inline-block">
-        {order.items.map((it) => (
-          <li key={it.glassId} className="py-1">
-            {it.name} × {it.quantity} &mdash; {(it.price * it.quantity).toFixed(2)} €
-          </li>
-        ))}
-      </ul>
+        <h2 className="text-2xl font-semibold mb-4">Récapitulatif</h2>
+        <ul className="space-y-4">
+          {order.items.map((it) => {
+            // On suppose que backend a peuplé items.glassId avec { name, price, imageUrl }
+            const glass = it.glassId;
+            const qty   = it.quantity;
+            const sub   = (glass.price * qty).toFixed(2);
+            return (
+              <li key={glass._id} className="flex items-center border-b pb-4">
+                <img
+                  src={formatImageUrl(glass.imageUrl)}
+                  alt={glass.name}
+                  className="w-16 h-16 object-cover rounded mr-4"
+                  onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder.png'; }}
+                />
+                <div className="flex-1">
+                  <p className="font-medium">{glass.name}</p>
+                  <p className="text-gray-600">
+                    × {qty} — {sub} €
+                  </p>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
 
-      <p className="mt-4 font-bold">Total : {order.totalPrice.toFixed(2)} €</p>
+        <p className="mt-6 text-right text-xl font-bold">
+          Total : {order.totalPrice.toFixed(2)} €
+        </p>
 
-      <Link
-        to="/"
-        className="mt-8 inline-block bg-[#ffaf50] text-white py-2 px-4 rounded hover:bg-[#e69940]"
-      >
-        Retour à l’accueil
-      </Link>
-    </div>
+        <div className="mt-8 text-center">
+          <Link
+            to="/"
+            className="inline-block bg-[#ffaf50] hover:bg-[#e69940] text-white font-semibold py-2 px-6 rounded transition"
+          >
+            Retour à l’accueil
+          </Link>
+        </div>
+      </div>
+    </section>
   );
 };
 
