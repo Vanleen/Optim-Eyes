@@ -1,3 +1,4 @@
+// backend/src/routes/recommendationRoutes.js
 import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
 import {
@@ -14,8 +15,12 @@ router.use(protect);
 //   POST /api/recommendations
 router.post('/', createPreferences);
 
-// Récupérer les recommandations
+// Récupérer les recommandations pour l’utilisateur courant
 //   GET  /api/recommendations
 router.get('/', getPreferences);
+
+// Récupérer les recommandations pour un user donné
+//   GET  /api/recommendations/:userId
+router.get('/:userId', getPreferences);
 
 export default router;
