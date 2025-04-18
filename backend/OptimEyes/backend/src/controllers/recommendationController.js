@@ -3,42 +3,49 @@ import Recommendation from '../models/Recommendation.js';
 import Glass from '../models/Glass.js';
 
 // POST /api/recommendations
-// Enregistre les préférences utilisateur
+// Crée ou met à jour les préférences de l’utilisateur connecté
 export const createPreferences = asyncHandler(async (req, res) => {
-  const { userId, budget, correction, style, marquesPreferees } = req.body;
+  const userId = req.user._id;
+  const { budget, correction, style, marquesPreferees } = req.body;
 
-  // Supprimer d'éventuelles anciennes prefs pour cet user
-  await Recommendation.deleteMany({ userId });
+  // Validation minimale
+  if (!budget || !correction || !style) {
+    res.status(400);
+    throw new Error('Budget, correction et style sont obligatoires.');
+  }
 
-  const prefs = await Recommendation.create({
-    userId, budget, correction, style, marquesPreferees
-  });
+  // Upsert des préférences
+  await Recommendation.findOneAndUpdate(
+    { userId },
+    { budget, correction, style, marquesPreferees },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
 
   res.status(201).json({ message: 'Préférences enregistrées' });
 });
 
-// GET /api/recommendations/:userId
-// Retourne les lunettes compatibles selon les prefs
+// GET /api/recommendations
+// Récupère les recommandations pour l’utilisateur connecté
 export const getPreferences = asyncHandler(async (req, res) => {
-  const { userId } = req.params;
+  const userId = req.user._id;
   const prefs = await Recommendation.findOne({ userId });
   if (!prefs) {
     return res.status(404).json({ message: 'Aucune préférence trouvée' });
   }
 
-  // Exemple de logique simplifiée : filtrer les Glass par budget et style
-  // (à adapter selon ton modèle Glass)
-  const query = {
-    price: prefs.budget.includes('moins') 
-      ? { $lt: parseInt(prefs.budget.match(/\d+/)[0], 10) }
-      : {},
-    style: prefs.style
-  };
+  // Filtre sur le budget
+  const maxBudget = parseInt(prefs.budget.match(/\d+/)?.[0] || '0', 10);
+  const priceFilter = prefs.budget.includes('moins')
+    ? { price: { $lt: maxBudget } }
+    : {};
 
-  let glasses = await Glass.find(query).select('name brand price description imageUrl');
+  // Recherche des montures
+  let glasses = await Glass.find(priceFilter).select(
+    'name brand price description imageUrl'
+  );
 
-  // Optionnel : filtrer par marquesPreferees
-  if (prefs.marquesPreferees.length) {
+  // Filtre sur les marques préférées
+  if (prefs.marquesPreferees?.length) {
     glasses = glasses.filter(g => prefs.marquesPreferees.includes(g.brand));
   }
 

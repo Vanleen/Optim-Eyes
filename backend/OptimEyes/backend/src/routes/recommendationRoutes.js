@@ -7,13 +7,15 @@ import {
 
 const router = express.Router();
 
-// Protéger ces routes par JWT
+// Toutes les routes ci‑dessous nécessitent un JWT valide
 router.use(protect);
 
-// Enregistrer les préférences
+// Enregistrer ou mettre à jour les préférences
+//   POST /api/recommendations
 router.post('/', createPreferences);
 
-// Récupérer les recommandations pour un user
-router.get('/:userId', getPreferences);
+// Récupérer les recommandations
+//   GET  /api/recommendations
+router.get('/', getPreferences);
 
 export default router;

@@ -9,15 +9,15 @@ export default function RecommendationsPage() {
   const navigate     = useNavigate();
   const API_URL      = process.env.REACT_APP_API_URL;
 
-  // ── PRÉFÉRENCES ───────────────────────────────────────────
-  const [prefs, setPrefs]         = useState({
+  // Préférences
+  const [prefs, setPrefs]               = useState({
     budget: '', correction: '', style: '', marquesPreferees: []
   });
-  const [prefRecs, setPrefRecs]   = useState([]);
-  const [prefSuccess, setPrefSuccess] = useState(false);
+  const [prefRecs, setPrefRecs]         = useState([]);
+  const [prefSuccess, setPrefSuccess]   = useState(false);
   const [loadingPrefs, setLoadingPrefs] = useState(false);
 
-  // ── IA (LOGIQUE OU IMAGE) ─────────────────────────────────
+  // IA (upload photo)
   const [faceShape, setFaceShape] = useState('');
   const [aiRecs, setAiRecs]       = useState([]);
   const [loadingAi, setLoadingAi] = useState(false);
@@ -33,20 +33,19 @@ export default function RecommendationsPage() {
 
   const handlePrefsSubmit = async e => {
     e.preventDefault();
-    if (!user) return navigate('/login');
+    if (!token) return navigate('/login');
     setLoadingPrefs(true);
     try {
       // Enregistrer les préférences
       await axios.post(
         `${API_URL}/api/recommendations`,
-        { userId: user._id, ...prefs },
+        { budget: prefs.budget, correction: prefs.correction, style: prefs.style, marquesPreferees: prefs.marquesPreferees },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setPrefSuccess(true);
-
       // Récupérer les recommandations
       const { data } = await axios.get(
-        `${API_URL}/api/recommendations/${user._id}`,
+        `${API_URL}/api/recommendations`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setPrefRecs(data);
@@ -57,14 +56,14 @@ export default function RecommendationsPage() {
     }
   };
 
-  const handleAiChange = e => {
+  const handleAiChange = () => {
     setFaceShape('');
     setAiRecs([]);
   };
 
   const handleAiSubmit = async e => {
     e.preventDefault();
-    if (!user) return navigate('/login');
+    if (!token) return navigate('/login');
 
     const file = e.target.image.files[0];
     if (!file) return;
