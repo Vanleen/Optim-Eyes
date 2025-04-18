@@ -1,3 +1,4 @@
+// frontend/src/pages/FormulaireRecommandations.jsx
 import React, { useState }   from 'react';
 import axios                  from 'axios';
 import { Link, useNavigate }  from 'react-router-dom';
@@ -39,7 +40,7 @@ export default function FormulaireRecommandations() {
     if (!token) return navigate('/login');
     setLoadingPrefs(true);
     try {
-      // 1) Upsert des préférences
+      // 1) Enregistrer / upsert prefs
       await axios.post(
         `${API_URL}/api/recommendations`,
         { userId: user._id, ...prefs },
@@ -47,12 +48,13 @@ export default function FormulaireRecommandations() {
       );
       setPrefSuccess(true);
 
-      // 2) Récupérer les recommandations
+      // 2) Récupérer recommandations prefs
       const { data } = await axios.get(
         `${API_URL}/api/recommendations`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setPrefRecs(data);
+      localStorage.setItem('prefRecs', JSON.stringify(data));
     } catch (err) {
       console.error('Erreur préférences :', err.response?.data || err);
     } finally {
@@ -95,6 +97,7 @@ export default function FormulaireRecommandations() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setAiRecs(recs);
+      localStorage.setItem('aiRecs', JSON.stringify(recs));
     } catch (err) {
       console.error('Erreur IA :', err.response?.data || err);
     } finally {
@@ -108,22 +111,19 @@ export default function FormulaireRecommandations() {
   return (
     <section className="pt-40 pb-16 bg-gray-100 min-h-screen">
       <div className="container mx-auto max-w-xl px-6 bg-white p-8 rounded-lg shadow-md">
-
         <h1 className="text-3xl font-semibold mb-8 text-center">
           Vos recommandations personnalisées
         </h1>
 
-        {/* — Préférences Formulaire — */}
+        {/* Préférences */}
         <h2 className="text-2xl font-semibold mb-4">Basées sur vos préférences</h2>
         <form onSubmit={handlePrefsSubmit} className="space-y-4 mb-6">
           <input name="budget" placeholder="Budget (ex : moins de 100€)"
             value={prefs.budget} onChange={handlePrefChange} required
             className="border rounded px-4 py-2 w-full" />
-
           <input name="correction" placeholder="Correction (ex : myopie)"
             value={prefs.correction} onChange={handlePrefChange} required
             className="border rounded px-4 py-2 w-full" />
-
           <input name="style" placeholder="Style (ex : moderne)"
             value={prefs.style} onChange={handlePrefChange} required
             className="border rounded px-4 py-2 w-full" />
@@ -142,7 +142,7 @@ export default function FormulaireRecommandations() {
             <option value="enfant">Enfant</option>
           </select>
 
-          <input name="marquesPreferees" placeholder="Marques (séparées par vírgule)"
+          <input name="marquesPreferees" placeholder="Marques (séparées par une virgule)"
             value={prefs.marquesPreferees.join(', ')} onChange={handlePrefChange}
             className="border rounded px-4 py-2 w-full" />
 
@@ -152,24 +152,24 @@ export default function FormulaireRecommandations() {
           </button>
         </form>
 
-        {/* — Résultats PRÉFÉRENCES — */}
+        {/* Résultats PRÉFÉRENCES */}
         {prefSuccess && prefRecs.length > 0 && (
           <ul className="mb-8 space-y-4">
-            {prefRecs.map(g => (
-              <Link key={g._id} to={`/product/${g._id}`}
+            {prefRecs.map((g, i) => (
+              <Link key={i} to={`/product/${g._id}`}
                 className="flex items-center border-b pb-4 hover:bg-gray-50 transition">
                 <img src={fmtImg(g.imageUrl)} alt={g.name}
                   className="w-16 h-16 object-cover rounded mr-4" />
                 <div>
                   <p className="font-medium">{g.name}</p>
-                  <p className="text-gray-600">{g.brand} — {g.price.toFixed(2)} €</p>
+                  <p className="text-gray-600">{g.brand} — {g.price.toFixed(2)} €</p>
                 </div>
               </Link>
             ))}
           </ul>
         )}
 
-        {/* — Upload PHOTO / IA — */}
+        {/* Upload PHOTO / IA */}
         <h2 className="text-2xl font-semibold mb-4">
           Générées par IA (upload de photo)
         </h2>
@@ -183,28 +183,27 @@ export default function FormulaireRecommandations() {
           </button>
         </form>
 
-        {/* — Résultats IA — */}
+        {/* Résultats IA */}
         {faceShape && (
           <p className="mb-4 text-center text-gray-700">
             Forme détectée : <strong>{faceShape}</strong>
           </p>
         )}
-        {aiRecs && aiRecs.length > 0 && (
+        {aiRecs.length > 0 && (
           <ul className="space-y-4">
-            {aiRecs.map(g => (
-              <Link key={g._id} to={`/product/${g._id}`}
+            {aiRecs.map((g, i) => (
+              <Link key={i} to={`/product/${g._id}`}
                 className="flex items-center border-b pb-4 hover:bg-gray-50 transition">
                 <img src={fmtImg(g.imageUrl)} alt={g.name}
                   className="w-16 h-16 object-cover rounded mr-4" />
                 <div>
                   <p className="font-medium">{g.name}</p>
-                  <p className="text-gray-600">{g.brand} — {g.price.toFixed(2)} €</p>
+                  <p className="text-gray-600">{g.brand} — {g.price.toFixed(2)} €</p>
                 </div>
               </Link>
             ))}
           </ul>
         )}
-
       </div>
     </section>
   );

@@ -12,12 +12,15 @@ const DiagnosticPage = () => {
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
 
-  const handleFileSelect = () => fileInputRef.current?.click();
+  const handleFileSelect = () => {
+    fileInputRef.current?.click();
+  };
 
   const handleChange = (e) => {
     const file = e.target.files[0];
     setImage(file);
     setResult(null);
+
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => setImagePreview(reader.result);
@@ -48,15 +51,15 @@ const DiagnosticPage = () => {
         formData,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,         // ← on envoie le token ici
-          },
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data"
+          }
         }
       );
       setResult(response.data);
     } catch (err) {
-      console.error("❌ Erreur diagnostic :", err.response || err);
-      setResult({ message: err.response?.data?.message || "Erreur lors du diagnostic." });
+      console.error("❌ Erreur diagnostic :", err.response?.data || err);
+      setResult({ message: "Erreur lors du diagnostic." });
     } finally {
       setLoading(false);
     }

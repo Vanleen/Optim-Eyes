@@ -1,15 +1,15 @@
 // frontend/src/pages/Recommandations.jsx
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { FiShoppingCart } from "react-icons/fi";
-import axios from "axios";
-import { useAuth } from "../context/AuthContext";
+import { Link, useNavigate }   from "react-router-dom";
+import { FiShoppingCart }      from "react-icons/fi";
+import axios                   from "axios";
+import { useAuth }             from "../context/AuthContext";
 
 const Recommandations = () => {
-  const { user } = useAuth();
-  const token = user?.token;
-  const navigate = useNavigate();
-  const API_URL = process.env.REACT_APP_API_URL;
+  const { user }   = useAuth();
+  const token      = user?.token;
+  const navigate   = useNavigate();
+  const API_URL    = process.env.REACT_APP_API_URL;
 
   const [recommended, setRecommended] = useState([]);
 
@@ -20,29 +20,41 @@ const Recommandations = () => {
     }
     const fetchRecs = async () => {
       try {
-        // on récupère les recos stockées (prérequis : formulaire ou IA déjà passés)
-        const { data } = await axios.get(
+        // 1) préférences depuis l'API
+        const { data: prefs } = await axios.get(
           `${API_URL}/api/recommendations`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setRecommended(data);
+        // stocker en local pour la page IA
+        localStorage.setItem('prefRecs', JSON.stringify(prefs));
+
+        // 2) recos IA stockées précédemment
+        const ia = JSON.parse(localStorage.getItem('aiRecs') || "[]");
+
+        // 3) fusion sans doublon
+        const merged = [
+          ...prefs,
+          ...ia.filter(a => !prefs.some(p => p._id === a._id))
+        ];
+
+        setRecommended(merged);
       } catch (err) {
-        console.error("❌ Erreur recommandations :", err.response?.data || err);
+        console.error("❌ Erreur recommandations :", err.response?.data || err);
       }
     };
     fetchRecs();
   }, [token, navigate, API_URL]);
 
-  const addToCart = (product) => {
+  const addToCart = product => {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    if (!cart.find((p) => p._id === product._id)) {
+    if (!cart.find(p => p._id === product._id)) {
       cart.push(product);
       localStorage.setItem("cart", JSON.stringify(cart));
       window.dispatchEvent(new Event("storage"));
     }
   };
 
-  const formatImageUrl = (url) =>
+  const formatImageUrl = url =>
     url && url.startsWith("http") ? url : `${API_URL}${url}`;
 
   return (
@@ -54,11 +66,9 @@ const Recommandations = () => {
 
         {recommended.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recommended.map((product) => (
-              <div
-                key={product._id}
-                className="bg-white rounded-lg shadow-md overflow-hidden relative"
-              >
+            {recommended.map(product => (
+              <div key={product._id}
+                   className="bg-white rounded-lg shadow-md overflow-hidden">
                 <img
                   src={formatImageUrl(product.imageUrl)}
                   alt={product.name}
