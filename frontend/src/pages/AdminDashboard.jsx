@@ -1,16 +1,16 @@
 // frontend/src/pages/AdminDashboard.jsx
 import { useEffect, useState } from "react";
-import { Link }               from "react-router-dom";
-import axios                   from "axios";
+import { Link } from "react-router-dom";
+import axios from "axios";
 // → Importez votre image
 import reportPreview from "../assets/images/1Dash.png";
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
     glasses: 0,
-    users:   0,
-    orders:  0,
-    forms:   0,
+    users: 0,
+    orders: 0,
+    forms: 0,
   });
 
   // Nouvel état pour afficher/cacher l’aperçu
@@ -23,21 +23,21 @@ const AdminDashboard = () => {
         const [glassesRes, usersRes, ordersRes, formsRes] = await Promise.all([
           axios.get("https://optim-eyes.onrender.com/api/glasses"),
           axios.get("https://optim-eyes.onrender.com/api/users", {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
           }),
           axios.get("https://optim-eyes.onrender.com/api/orders", {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
           }),
           axios.get("https://optim-eyes.onrender.com/api/form/all", {
-            headers: { Authorization: `Bearer ${token}` }
-          })
+            headers: { Authorization: `Bearer ${token}` },
+          }),
         ]);
 
         setStats({
           glasses: glassesRes.data.length,
-          users:   usersRes.data.length,
-          orders:  ordersRes.data.length,
-          forms:   formsRes.data.length,
+          users: usersRes.data.length,
+          orders: ordersRes.data.length,
+          forms: formsRes.data.length,
         });
       } catch (error) {
         console.error("❌ Erreur dashboard admin :", error);
@@ -54,13 +54,14 @@ const AdminDashboard = () => {
           Tableau de bord admin 📊
         </h1>
 
-        {/* Bouton “Aperçu” qui affiche l’image au clic */}
+        {/* Bouton avec aperçu de l'image */}
         <div className="text-center mb-8">
           <button
-            onClick={() => setShowPreview(p => !p)}
+            onClick={() => window.open("/images/1Dash.png", "_blank")}
             className="inline-block bg-[#ffaf50] text-white font-semibold py-3 px-6 rounded-md hover:bg-[#e69940] transition"
+            title="Voir l’aperçu du dashboard Power BI"
           >
-            Aperçu rapport
+            Aperçu du rapport
           </button>
         </div>
 
