@@ -1,23 +1,22 @@
 // frontend/src/api/paymentApi.js
 import axios from 'axios';
 
-console.log("▶ paymentApi utilisant API_URL =", process.env.REACT_APP_API_URL);
-
 const API_URL = process.env.REACT_APP_API_URL;
-console.log("→ paymentApi using API_URL =", API_URL);
 
-export const createStripeCheckoutSession = async (items) => {
-  console.log("→ createStripeCheckoutSession items:", items);
+/**
+ * Crée une session Stripe Checkout hébergée pour un seul article.
+ * @param {{ userId: string, glassId: string, quantity: number }} opts
+ * @returns {Promise<{ url: string }>} l'URL de redirection vers Stripe
+ */
+export const createStripeSession = async ({ userId, glassId, quantity }) => {
   try {
     const resp = await axios.post(
       `${API_URL}/api/payments/stripe`,
-      { items }
+      { userId, glassId, quantity, paymentMethod: 'stripe' }
     );
-    console.log("← create session response:", resp.data);
-    return resp.data; // { sessionId }
+    return resp.data; // { url: "https://checkout.stripe.com/..." }
   } catch (err) {
-    // logue toute la réponse d’erreur
-    console.error("✖︎ createStripeCheckoutSession error:", err.response?.data ?? err);
+    console.error("Erreur createStripeSession:", err.response?.data || err.message);
     throw err;
   }
 };
