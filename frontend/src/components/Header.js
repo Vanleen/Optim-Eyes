@@ -281,7 +281,7 @@ const Header = () => {
           )}
 
           <Link
-            to="/login"
+            to={user ? "/account" : "/login"}
             className="flex items-center gap-2 text-black text-lg hover:text-[#ffaf50]"
             onClick={() => setIsMenuOpen(false)}
           >
