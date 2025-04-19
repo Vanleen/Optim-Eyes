@@ -1,17 +1,39 @@
+// backend/src/controllers/formController.js
 import Form from "../models/formModel.js";
 
 export const createForm = async (req, res) => {
   try {
-    const { firstname, lastname, age, weight, height, rhesus, allergies } = req.body;
+    const {
+      firstname,
+      lastname,
+      age,
+      visionIssues,
+      glassesOrContacts,
+      ocularHistory,
+      examFrequency,
+      screenSensitivity,
+      familyHistory,
+      allergies,
+    } = req.body;
+
+    // 🔍 Log des données reçues
+    console.log("📥 Données reçues via POST /api/form :");
+    console.log("➡️ Champs :", req.body);
+    console.log("📎 Fichier :", req.file);
 
     const newForm = new Form({
       firstname,
       lastname,
       age,
-      weight,
-      height,
-      rhesus,
+      visionIssues,
+      glassesOrContacts,
+      ocularHistory,
+      examFrequency,
+      screenSensitivity,
+      familyHistory,
       allergies,
+      prescriptionFilePath: req.file?.path || null,
+      prescriptionFileName: req.file?.originalname || null,
     });
 
     await newForm.save();
@@ -19,7 +41,7 @@ export const createForm = async (req, res) => {
     res.status(200).json({ message: "Formulaire reçu avec succès" });
   } catch (err) {
     console.error("❌ Erreur lors de l'enregistrement du formulaire :", err);
-    res.status(500).json({ error: "Erreur serveur" });
+    res.status(500).json({ error: err.message || "Erreur serveur" });
   }
 };
 
@@ -30,7 +52,7 @@ export const getFormById = async (req, res) => {
     res.status(200).json(form);
   } catch (err) {
     console.error("❌ Erreur récupération formulaire :", err);
-    res.status(500).json({ error: "Erreur serveur" });
+    res.status(500).json({ error: err.message || "Erreur serveur" });
   }
 };
 
@@ -40,6 +62,6 @@ export const getAllForms = async (req, res) => {
     res.status(200).json(forms);
   } catch (error) {
     console.error("❌ Erreur récupération tous les formulaires :", error);
-    res.status(500).json({ message: "Erreur serveur" });
+    res.status(500).json({ error: error.message || "Erreur serveur" });
   }
 };

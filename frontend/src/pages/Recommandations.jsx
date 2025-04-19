@@ -18,23 +18,18 @@ const Recommandations = () => {
       navigate("/login");
       return;
     }
+
     const fetchRecs = async () => {
       try {
-        // 1) préférences depuis l'API
-        const { data: prefs } = await axios.get(
-          `${API_URL}/api/recommendations`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        // stocker en local pour la page IA
-        localStorage.setItem('prefRecs', JSON.stringify(prefs));
+        // Préférences stockées en local
+        const prefRecs = JSON.parse(localStorage.getItem("prefRecs") || "[]");
+        const aiRecs   = JSON.parse(localStorage.getItem("aiRecs") || "[]");
+        const chatRecs = JSON.parse(localStorage.getItem("chatRecs") || "[]");
 
-        // 2) recos IA stockées précédemment
-        const ia = JSON.parse(localStorage.getItem('aiRecs') || "[]");
-
-        // 3) fusion sans doublon
         const merged = [
-          ...prefs,
-          ...ia.filter(a => !prefs.some(p => p._id === a._id))
+          ...prefRecs,
+          ...aiRecs.filter(r => !prefRecs.some(p => p._id === r._id)),
+          ...chatRecs.filter(r => !prefRecs.concat(aiRecs).some(p => p._id === r._id))
         ];
 
         setRecommended(merged);
@@ -42,8 +37,9 @@ const Recommandations = () => {
         console.error("❌ Erreur recommandations :", err.response?.data || err);
       }
     };
+
     fetchRecs();
-  }, [token, navigate, API_URL]);
+  }, [token, navigate]);
 
   const addToCart = product => {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];

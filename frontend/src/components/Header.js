@@ -34,7 +34,7 @@ const Header = () => {
   const handleLogout = () => {
     logout();
     navigate("/"); // ✅ redirection vers l'accueil
-  };  
+  };
   useEffect(() => {
     const updateCartCount = () => {
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -132,12 +132,20 @@ const Header = () => {
           <div className="flex items-center relative">
             <div className="hidden md:flex gap-4 text-xl text-black items-center">
               <div className="relative group">
-                <FiUser className="cursor-pointer hover:text-blue-600" />
+                {user?.isAdmin ? (
+                  <span className="text-xl cursor-pointer hover:text-yellow-500">
+                    🎖️
+                  </span>
+                ) : (
+                  <FiUser className="cursor-pointer hover:text-blue-600" />
+                )}
+
                 <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-1000">
                   {user ? (
                     <>
                       <p className="px-4 py-2 text-gray-800">
-                        Bienvenue, {user.firstname || user.name} 👋
+                        {user?.isAdmin ? "🎖️" : "🙋‍♂️"} Bienvenue,{" "}
+                        {user.firstname || user.name}
                       </p>
 
                       <Link
@@ -153,7 +161,7 @@ const Header = () => {
                           to="/admin"
                           className="flex items-center gap-2 px-4 py-2 text-[#0077B6] font-medium hover:bg-gray-100"
                         >
-                          🛠️ Admin Dashboard
+                          🎖️ Dashboard Admin
                         </Link>
                       )}
 
@@ -231,13 +239,47 @@ const Header = () => {
             Enfant
           </Link>
           <Link
+            to="/diagnostic"
+            className="text-black text-lg hover:text-blue-600"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Diagnostic IA
+          </Link>
+          <Link
             to="/recommandations"
             className="text-black text-lg hover:text-blue-600"
             onClick={() => setIsMenuOpen(false)}
           >
             Mes Recommandations
           </Link>
+
           <hr className="border-t-2 border-[#ffaf50] w-4/5 my-4 mx-auto" />
+
+          {user && (
+            <div className="flex items-center justify-between pr-6">
+              <p className="text-black text-lg text-left">
+                {user?.isAdmin ? "🎖️" : "🙋‍♂️"} Bonjour,{" "}
+                {user.firstname || user.name}
+              </p>
+
+              {user.isAdmin && (
+                <span className="bg-yellow-400 text-white text-xs font-bold px-2 py-1 rounded-full">
+                  Admin
+                </span>
+              )}
+            </div>
+          )}
+
+          {user?.isAdmin && (
+            <Link
+              to="/admin"
+              className="flex items-center gap-2 text-black text-lg hover:text-[#ffaf50]"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              🎖️ Dashboard Admin
+            </Link>
+          )}
+
           <Link
             to="/login"
             className="flex items-center gap-2 text-black text-lg hover:text-[#ffaf50]"
@@ -245,6 +287,7 @@ const Header = () => {
           >
             <FiUser className="text-xl" /> Mon Compte
           </Link>
+
           <Link
             to="/panier"
             className="flex items-center gap-2 text-black text-lg hover:text-[#ffaf50]"
@@ -252,6 +295,7 @@ const Header = () => {
           >
             <FiShoppingCart className="text-xl" /> Mon Panier
           </Link>
+
           <Link
             to="/favoris"
             className="flex items-center gap-2 text-black text-lg hover:text-[#ffaf50]"
@@ -259,6 +303,18 @@ const Header = () => {
           >
             <FiHeart className="text-xl" /> Mes Favoris
           </Link>
+
+          {user && (
+            <button
+              onClick={() => {
+                handleLogout();
+                setIsMenuOpen(false);
+              }}
+              className="text-red-600 text-left px-4 py-2 hover:bg-gray-100"
+            >
+              Déconnexion
+            </button>
+          )}
         </nav>
 
         <div className="absolute bottom-0 w-full bg-[#0077B6] py-4 flex justify-center space-x-6">
@@ -314,7 +370,7 @@ const Header = () => {
             to="/recommandations"
             className="text-black hover:text-[#ffaf50]"
           >
-            Trouver mes lunettes idéales
+            Mes Recommandations
           </Link>
         </nav>
       </motion.div>

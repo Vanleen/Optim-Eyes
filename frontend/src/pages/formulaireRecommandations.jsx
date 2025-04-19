@@ -1,14 +1,14 @@
 // frontend/src/pages/FormulaireRecommandations.jsx
-import React, { useState }   from 'react';
-import axios                  from 'axios';
-import { Link, useNavigate }  from 'react-router-dom';
-import { useAuth }            from '../context/AuthContext';
+import React, { useState } from 'react';
+import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function FormulaireRecommandations() {
-  const { user }     = useAuth();
-  const token        = user?.token;
-  const navigate     = useNavigate();
-  const API_URL      = process.env.REACT_APP_API_URL;
+  const { user } = useAuth();
+  const token = user?.token;
+  const navigate = useNavigate();
+  const API_URL = process.env.REACT_APP_API_URL;
 
   // ── PRÉFÉRENCES ───────────────────────────────
   const [prefs, setPrefs] = useState({
@@ -16,13 +16,13 @@ export default function FormulaireRecommandations() {
     category: 'optique', gender: 'mixte',
     marquesPreferees: []
   });
-  const [prefRecs, setPrefRecs]         = useState([]);
-  const [prefSuccess, setPrefSuccess]   = useState(false);
+  const [prefRecs, setPrefRecs] = useState([]);
+  const [prefSuccess, setPrefSuccess] = useState(false);
   const [loadingPrefs, setLoadingPrefs] = useState(false);
 
   // ── IA (PHOTO) ────────────────────────────────
   const [faceShape, setFaceShape] = useState('');
-  const [aiRecs, setAiRecs]       = useState([]);
+  const [aiRecs, setAiRecs] = useState([]);
   const [loadingAi, setLoadingAi] = useState(false);
 
   const handlePrefChange = e => {
@@ -40,7 +40,7 @@ export default function FormulaireRecommandations() {
     if (!token) return navigate('/login');
     setLoadingPrefs(true);
     try {
-      // 1) Enregistrer / upsert prefs
+      // 1) Enregistrer / mettre à jour les préférences
       await axios.post(
         `${API_URL}/api/recommendations`,
         { userId: user._id, ...prefs },
@@ -48,7 +48,7 @@ export default function FormulaireRecommandations() {
       );
       setPrefSuccess(true);
 
-      // 2) Récupérer recommandations prefs
+      // 2) Récupérer les recommandations
       const { data } = await axios.get(
         `${API_URL}/api/recommendations`,
         { headers: { Authorization: `Bearer ${token}` } }
@@ -56,7 +56,7 @@ export default function FormulaireRecommandations() {
       setPrefRecs(data);
       localStorage.setItem('prefRecs', JSON.stringify(data));
     } catch (err) {
-      console.error('Erreur préférences :', err.response?.data || err);
+      console.error('Erreur préférences :', err.response?.data || err);
     } finally {
       setLoadingPrefs(false);
     }
@@ -74,7 +74,7 @@ export default function FormulaireRecommandations() {
     if (!file) return;
     setLoadingAi(true);
     try {
-      // 1) Detect face shape
+      // 1) Détection de la forme du visage
       const formData = new FormData();
       formData.append('image', file);
       const detectRes = await axios.post(
@@ -90,16 +90,20 @@ export default function FormulaireRecommandations() {
       const shape = detectRes.data.faceShape;
       setFaceShape(shape);
 
-      // 2) Recos IA
+      // 2) Recommandations IA
       const { data: recs } = await axios.post(
         `${API_URL}/api/ai/recommendations`,
         { userId: user._id, faceShape: shape, ...prefs },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setAiRecs(recs);
-      localStorage.setItem('aiRecs', JSON.stringify(recs));
+
+      // Sauvegarde locale uniquement si non vide
+      if (recs.length > 0) {
+        localStorage.setItem('aiRecs', JSON.stringify(recs));
+      }
     } catch (err) {
-      console.error('Erreur IA :', err.response?.data || err);
+      console.error('Erreur IA :', err.response?.data || err);
     } finally {
       setLoadingAi(false);
     }

@@ -50,6 +50,9 @@ const ChatWindow = ({ onClose }) => {
       const newBotMessages = [];
 
       if (isRecommendation) {
+        // 🔐 Stockage local des recommandations du chatbot
+        localStorage.setItem("chatbotRecs", JSON.stringify(botResponse));
+
         newBotMessages.push({
           sender: "bot",
           type: "recommendation",
