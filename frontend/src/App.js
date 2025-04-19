@@ -25,6 +25,8 @@ import AdminGlasses from "./pages/AdminGlasses";
 import SuccessPage    from './pages/SuccessPage';
 import FormulaireRecommandations from './pages/formulaireRecommandations.jsx';
 import MonComptePage from './pages/MonComptePage.jsx';
+import RdvDomicile from "./pages/RdvDomicile";
+
 
 function App() {
   return (
@@ -58,6 +60,7 @@ function App() {
             <Route path="/recommendations" element={<FormulaireRecommandations />} />
             <Route path="/mon-compte" element={<MonComptePage />} />
             <Route path="/account" element={<MonComptePage />} />
+            <Route path="/rdv-domicile" element={<RdvDomicile />} />
           </Routes>
           <ChatbotButton />
           <Footer />

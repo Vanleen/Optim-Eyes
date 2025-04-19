@@ -8,7 +8,7 @@ import {
   FiShoppingCart,
   FiX,
   FiMenu,
-  FiCalendar,
+  FiFileText, // ✅ remplace FiCalendar
 } from "react-icons/fi";
 import { FaInstagram, FaTwitter, FaPinterest, FaTiktok } from "react-icons/fa";
 import logo from "../assets/images/logo.svg";
@@ -205,9 +205,9 @@ const Header = () => {
             </Link>
           </div>
 
-          <button className="md:hidden mr-[-35px]">
-            <FiCalendar size={24} className="text-black" />
-          </button>
+          <Link to="/formulaire-sante" className="md:hidden mr-[-35px]">
+            <FiFileText size={24} className="text-black hover:text-[#ffaf50]" />
+          </Link>
         </div>
       </header>
 
