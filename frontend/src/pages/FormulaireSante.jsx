@@ -1,9 +1,7 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import axios from "axios";
 
 const FormulaireSante = () => {
-  const fileInputRef = useRef();
-
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -22,27 +20,24 @@ const FormulaireSante = () => {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value, files } = e.target;
+    if (name === "prescriptionFile") {
+      setFormData({ ...formData, [name]: files[0] });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const data = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
-        if (value && key !== "prescriptionFile") data.append(key, value);
+        if (value) data.append(key, value);
       });
-
-      if (formData.prescriptionFile) {
-        data.append("prescriptionFile", formData.prescriptionFile);
-      }
-
-      await axios.post(`${process.env.REACT_APP_API_URL}/api/form`, data, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      await axios.post("https://optim-eyes.onrender.com/api/form", data, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       setSuccess(true);
@@ -59,8 +54,6 @@ const FormulaireSante = () => {
         allergies: "",
         prescriptionFile: null,
       });
-
-      if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (err) {
       console.error("❌ Erreur d'envoi du formulaire :", err);
     } finally {
@@ -72,7 +65,7 @@ const FormulaireSante = () => {
     <section className="pt-40 pb-16 bg-gray-100 min-h-screen">
       <div className="container mx-auto max-w-xl px-6 bg-white p-8 rounded-lg shadow-md">
         <h1 className="text-3xl font-semibold text-gray-800 mb-6 text-center">
-          Formulaire Santé 🩺
+          Formulaire Santé Visuelle 👁️
         </h1>
 
         {success && (
@@ -81,7 +74,7 @@ const FormulaireSante = () => {
           </p>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input
               type="text"
@@ -103,74 +96,76 @@ const FormulaireSante = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <input
-              type="number"
-              name="age"
-              placeholder="Âge"
-              value={formData.age}
-              onChange={handleChange}
-              required
-              className="border rounded px-4 py-2 w-full"
-            />
-            <input
-              type="text"
-              name="visionIssues"
-              placeholder="Problèmes de vision"
-              value={formData.visionIssues}
-              onChange={handleChange}
-              required
-              className="border rounded px-4 py-2 w-full"
-            />
-            <input
-              type="text"
-              name="glassesOrContacts"
-              placeholder="Lunettes ou lentilles"
-              value={formData.glassesOrContacts}
-              onChange={handleChange}
-              required
-              className="border rounded px-4 py-2 w-full"
-            />
-          </div>
+          <input
+            type="number"
+            name="age"
+            placeholder="Âge"
+            value={formData.age}
+            onChange={handleChange}
+            required
+            className="border rounded px-4 py-2 w-full"
+          />
+
+          <textarea
+            name="visionIssues"
+            placeholder="Problèmes de vision (myopie, astigmatisme, etc.)"
+            value={formData.visionIssues}
+            onChange={handleChange}
+            required
+            className="border rounded px-4 py-2 w-full"
+            rows="3"
+          ></textarea>
+
+          <select
+            name="glassesOrContacts"
+            value={formData.glassesOrContacts}
+            onChange={handleChange}
+            required
+            className="border rounded px-4 py-2 w-full"
+          >
+            <option value="">-- Portez-vous des lunettes ou lentilles ? --</option>
+            <option value="lunettes">Oui, lunettes</option>
+            <option value="lentilles">Oui, lentilles</option>
+            <option value="aucun">Non</option>
+          </select>
 
           <textarea
             name="ocularHistory"
-            placeholder="Antécédents oculaires"
+            placeholder="Antécédents médicaux oculaires"
             value={formData.ocularHistory}
             onChange={handleChange}
             required
             className="border rounded px-4 py-2 w-full"
-            rows="2"
+            rows="3"
           ></textarea>
 
-          <textarea
+          <select
             name="examFrequency"
-            placeholder="Fréquence des examens"
             value={formData.examFrequency}
             onChange={handleChange}
             required
             className="border rounded px-4 py-2 w-full"
-            rows="2"
-          ></textarea>
+          >
+            <option value="">-- Dernier examen de vue --</option>
+            <option value="<1an">Moins d’un an</option>
+            <option value="1-2ans">Entre 1 et 2 ans</option>
+            <option value=">2ans">Plus de 2 ans</option>
+          </select>
 
-          <textarea
-            name="screenSensitivity"
-            placeholder="Sensibilité aux écrans"
-            value={formData.screenSensitivity}
-            onChange={handleChange}
-            required
-            className="border rounded px-4 py-2 w-full"
-            rows="2"
-          ></textarea>
+          <div className="flex items-center space-x-4">
+            <label className="text-gray-700">Sensibilité aux écrans/lumière ?</label>
+            <label><input type="radio" name="screenSensitivity" value="oui" onChange={handleChange} required /> Oui</label>
+            <label><input type="radio" name="screenSensitivity" value="non" onChange={handleChange} /> Non</label>
+          </div>
 
           <textarea
             name="familyHistory"
-            placeholder="Antécédents familiaux"
+            placeholder="Antécédents familiaux (glaucome, DMLA, etc.)"
             value={formData.familyHistory}
             onChange={handleChange}
             required
             className="border rounded px-4 py-2 w-full"
-            rows="2"
+            rows="3"
           ></textarea>
 
           <textarea
@@ -182,16 +177,16 @@ const FormulaireSante = () => {
             rows="2"
           ></textarea>
 
-          <input
-            type="file"
-            name="prescriptionFile"
-            ref={fileInputRef}
-            onChange={(e) =>
-              setFormData({ ...formData, prescriptionFile: e.target.files[0] })
-            }
-            className="border rounded px-4 py-2 w-full"
-            accept="image/*,application/pdf"
-          />
+          <div>
+            <label className="block text-gray-700 mb-1">Ordonnance / Fichier médical (PDF ou image)</label>
+            <input
+              type="file"
+              name="prescriptionFile"
+              accept="application/pdf,image/*"
+              onChange={handleChange}
+              className="border rounded px-4 py-2 w-full bg-white"
+            />
+          </div>
 
           <button
             type="submit"
